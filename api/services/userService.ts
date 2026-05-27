@@ -1,7 +1,7 @@
 import { db } from '../config/database';
 import { UserValidation } from '../validations/userValidation';
 import { ConflictError, NotFoundError } from '../helpers/errors';
-import { CreateUserInput, UpdateUserInput, UserResponse, User } from '../models/User';
+import { CreateUserInput, UpdateUserInput, UserResponse, IUser } from '../models/User';
 import logger from '../config/logger';
 
 export class UserService {
@@ -14,7 +14,7 @@ export class UserService {
     }
 
     const user = await db.createUser(data);
-    logger.info(`User created: ${user.id}`);
+    logger.info(`User created: ${user._id}`);
 
     return this.mapToResponse(user);
   }
@@ -63,9 +63,9 @@ export class UserService {
     logger.info(`User deleted: ${id}`);
   }
 
-  private mapToResponse(user: User): UserResponse {
+  private mapToResponse(user: IUser): UserResponse {
     return {
-      id: user.id,
+      id: user._id.toString(),
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,

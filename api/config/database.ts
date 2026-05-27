@@ -1,61 +1,58 @@
-import { User } from '../models/User';
-import { generateId } from '../helpers/generateId';
+import mongoose from 'mongoose';
+import { User, IUser } from '../models/User';
 import { NotFoundError } from '../helpers/errors';
+import logger from './logger';
 
 export class Database {
-  private users: Map<string, User> = new Map();
+  async connect(): Promise<void> {
+    try {
+      const mongoUrl = process.env.MONGO_URL || 'mongodb://mongo:password@localhost:27017';
+      await mongoose.connect(mongoUrl, {
+        dbName: 'mylebpass',
+      });
+      logger.info('Connected to MongoDB');
+    } catch (error) {
+      logger.error('MongoDB connection error:', error);
+      throw error;
+    }
+  }
 
-  async createUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {
-    const id = generateId();
-    const user: User = {
-      ...userData,
-      id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.users.set(id, user);
+  async disconnect(): Promise<void> {
+    await mongoose.disconnect();
+    logger.info('Disconnected from MongoDB');
+  }
+
+  async createUser(userData: { email: string; password: string; firstName: string; lastName: string }): Promise<IUser> {
+    const user = new User(userData);
+    await user.save();
     return user;
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.users.get(id) || null;
+  async getUserById(id: string): Promise<IUser | null> {
+    return await User.findById(id);
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    for (const user of this.users.values()) {
-      if (user.email === email) {
-        return user;
-      }
-    }
-    return null;
+  async getUserByEmail(email: string): Promise<IUser | null> {
+    return await User.findOne({ email });
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
+  async getAllUsers(): Promise<IUser[]> {
+    return await User.find();
   }
 
-  async updateUser(id: string, userData: Partial<User>): Promise<User> {
-    const user = this.users.get(id);
+  async updateUser(id: string, userData: Partial<IUser>): Promise<IUser> {
+    const user = await User.findByIdAndUpdate(id, userData, { new: true });
     if (!user) {
       throw new NotFoundError('User not found');
     }
-
-    const updatedUser: User = {
-      ...user,
-      ...userData,
-      id: user.id,
-      createdAt: user.createdAt,
-      updatedAt: new Date(),
-    };
-    this.users.set(id, updatedUser);
-    return updatedUser;
+    return user;
   }
 
   async deleteUser(id: string): Promise<void> {
-    if (!this.users.has(id)) {
+    const result = await User.findByIdAndDelete(id);
+    if (!result) {
       throw new NotFoundError('User not found');
     }
-    this.users.delete(id);
   }
 }
 

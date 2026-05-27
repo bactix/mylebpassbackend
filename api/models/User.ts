@@ -1,5 +1,6 @@
-export interface User {
-  id: string;
+import { Schema, model, Document, Types } from 'mongoose';
+
+export interface IUser extends Document {
   email: string;
   password: string;
   firstName: string;
@@ -7,6 +8,34 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const userSchema = new Schema<IUser>(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const User = model<IUser>('User', userSchema);
 
 export interface CreateUserInput {
   email: string;
