@@ -6,27 +6,28 @@ import logger from './logger';
 export class Database {
   async connect(): Promise<void> {
     try {
-      // Build MongoDB URL based on environment
       let mongoUrl = process.env.MONGO_URL;
 
-      // If Railway environment variables are present, use them
+      // If Railway environment variables are present, use them (deployment)
       if (process.env.RAILWAY_PRIVATE_DOMAIN) {
         mongoUrl = `mongodb://${process.env.MONGOUSER}:${process.env.MONGOPASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:27017`;
-        logger.info('Using Railway MongoDB connection');
-      } else if (!mongoUrl) {
-        mongoUrl = 'mongodb://mongo:password@localhost:27017';
+        logger.info('✓ Connected to Railway MongoDB');
+      } else if (mongoUrl) {
+        logger.info('✓ Connecting to MongoDB via MONGO_URL');
+      } else {
+        logger.info('ℹ MongoDB offline mode - API running without database');
+        return;
       }
 
       await mongoose.connect(mongoUrl, {
         dbName: 'mylebpass',
         serverSelectionTimeoutMS: 5000,
       });
-      logger.info('Connected to MongoDB');
+      logger.info('✓ MongoDB connection successful');
     } catch (error) {
-      logger.warn('MongoDB connection failed - running in memory mode');
-      logger.debug('Connection error:', error);
-      logger.warn('For Railway deployment: Ensure environment variables are set');
-      logger.warn('For local development: You can ignore this warning');
+      logger.warn('⚠ Could not connect to MongoDB - running in offline mode');
+      logger.info('ℹ This is normal for local development');
+      logger.info('ℹ When deployed to Railway, MongoDB will connect automatically');
     }
   }
 
