@@ -21,7 +21,9 @@ export class Database {
 
       await mongoose.connect(mongoUrl, {
         dbName: 'mylebpass',
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 15000,
+        connectTimeoutMS: 15000,
+        socketTimeoutMS: 45000,
       });
       logger.info('✓ MongoDB connection successful');
     } catch (error) {
