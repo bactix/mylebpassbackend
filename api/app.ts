@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import logger from './config/logger';
 import { errorHandler } from './middlewares/errorHandler';
-import userRoutes from './routes/userRoutes';
+import routes from './routes';
 
 export const createApp = (): Express => {
   const app = express();
@@ -30,8 +30,8 @@ export const createApp = (): Express => {
     });
   });
 
-  // Routes
-  app.use('/api/users', userRoutes);
+  // API Routes - App & Dashboard
+  app.use('/api', routes);
 
   // 404 handler
   app.use((req, res) => {
