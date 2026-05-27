@@ -12,6 +12,7 @@ const app = createApp();
 
 const startServer = async (): Promise<void> => {
   try {
+    // Connect to MongoDB (non-blocking)
     await db.connect();
 
     const server = app.listen(PORT, () => {

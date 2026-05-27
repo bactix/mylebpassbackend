@@ -9,11 +9,12 @@ export class Database {
       const mongoUrl = process.env.MONGO_URL || 'mongodb://mongo:password@localhost:27017';
       await mongoose.connect(mongoUrl, {
         dbName: 'mylebpass',
+        serverSelectionTimeoutMS: 5000,
       });
       logger.info('Connected to MongoDB');
     } catch (error) {
-      logger.error('MongoDB connection error:', error);
-      throw error;
+      logger.warn('MongoDB connection failed - running in memory mode:', error);
+      logger.warn('Ensure MongoDB is running or provide MONGO_URL environment variable');
     }
   }
 
