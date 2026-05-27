@@ -6,15 +6,27 @@ import logger from './logger';
 export class Database {
   async connect(): Promise<void> {
     try {
-      const mongoUrl = process.env.MONGO_URL || 'mongodb://mongo:password@localhost:27017';
+      // Build MongoDB URL based on environment
+      let mongoUrl = process.env.MONGO_URL;
+
+      // If Railway environment variables are present, use them
+      if (process.env.RAILWAY_PRIVATE_DOMAIN) {
+        mongoUrl = `mongodb://${process.env.MONGOUSER}:${process.env.MONGOPASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:27017`;
+        logger.info('Using Railway MongoDB connection');
+      } else if (!mongoUrl) {
+        mongoUrl = 'mongodb://mongo:password@localhost:27017';
+      }
+
       await mongoose.connect(mongoUrl, {
         dbName: 'mylebpass',
         serverSelectionTimeoutMS: 5000,
       });
       logger.info('Connected to MongoDB');
     } catch (error) {
-      logger.warn('MongoDB connection failed - running in memory mode:', error);
-      logger.warn('Ensure MongoDB is running or provide MONGO_URL environment variable');
+      logger.warn('MongoDB connection failed - running in memory mode');
+      logger.debug('Connection error:', error);
+      logger.warn('For Railway deployment: Ensure environment variables are set');
+      logger.warn('For local development: You can ignore this warning');
     }
   }
 
