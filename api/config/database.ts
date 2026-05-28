@@ -8,18 +8,12 @@ export class Database {
     try {
       let mongoUrl = process.env.MONGO_URL;
 
-      // If Railway environment variables are present, use them (deployment)
-      if (process.env.RAILWAY_PRIVATE_DOMAIN) {
-        mongoUrl = `mongodb://${process.env.MONGOUSER}:${process.env.MONGOPASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:27017`;
-        logger.info('✓ Detected Railway MongoDB environment');
-        logger.debug(`Connecting to: ${process.env.RAILWAY_PRIVATE_DOMAIN}`);
-      } else if (mongoUrl) {
-        logger.info('✓ Connecting to MongoDB via MONGO_URL');
-      } else {
+      if (!mongoUrl) {
         logger.info('ℹ MongoDB offline mode - API running without database');
         return;
       }
 
+      logger.info('✓ Connecting to MongoDB');
       await mongoose.connect(mongoUrl, {
         dbName: 'mylebpass',
         serverSelectionTimeoutMS: 30000,
@@ -32,7 +26,7 @@ export class Database {
       logger.warn('⚠ MongoDB connection failed');
       logger.error('Connection error details:', error);
       logger.info('ℹ This is normal for local development without MongoDB');
-      logger.info('ℹ For Railway: Ensure MongoDB plugin is added to the project');
+      logger.info('ℹ Check your MONGO_URL in .env file');
     }
   }
 

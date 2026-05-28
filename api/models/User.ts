@@ -1,33 +1,54 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
 export interface IUser extends Document {
+  name: string;
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  phone: string;
+  status: 'active' | 'inactive';
+  startDate: Date;
+  expiryDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
   {
+    name: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      index: true,
     },
     password: {
       type: String,
       required: true,
     },
-    firstName: {
+    phone: {
       type: String,
       required: true,
     },
-    lastName: {
+    status: {
       type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
+      index: true,
+    },
+    startDate: {
+      type: Date,
       required: true,
+      default: () => new Date(),
+    },
+    expiryDate: {
+      type: Date,
+      required: true,
+      index: true,
+      default: () => new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     },
   },
   {
@@ -38,23 +59,27 @@ const userSchema = new Schema<IUser>(
 export const User = model<IUser>('User', userSchema);
 
 export interface CreateUserInput {
+  name: string;
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  phone: string;
+  status?: 'active' | 'inactive';
 }
 
 export interface UpdateUserInput {
-  email?: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
+  phone?: string;
+  status?: 'active' | 'inactive';
 }
 
 export interface UserResponse {
   id: string;
+  name: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  phone: string;
+  status: 'active' | 'inactive';
+  startDate: string;
+  expiryDate: string;
+  createdAt: string;
+  updatedAt: string;
 }

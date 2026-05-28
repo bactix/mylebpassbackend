@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Server runs on `http://localhost:3000`
+Server runs on `http://localhost:4000`
 
 ## Build
 
@@ -54,7 +54,7 @@ npm run build
 
 ```bash
 # Create user
-curl -X POST http://localhost:3000/api/users \
+curl -X POST http://localhost:4000/api/users \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
@@ -64,7 +64,7 @@ curl -X POST http://localhost:3000/api/users \
   }'
 
 # Get all users
-curl http://localhost:3000/api/users
+curl http://localhost:4000/api/users
 ```
 
 ## Scripts
