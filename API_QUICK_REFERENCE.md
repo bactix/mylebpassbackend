@@ -228,7 +228,7 @@ Nabatieh, Byblos, Aley, Chouf, Bint Jbeil
 - Range: 0-100 (percentage)
 
 ### Phone Format
-- Format: `+961 XX XXX XXXX`
+- Format: `+961 XXXXXXXX` (8 digits)
 - Example: `+961 71 123 456`
 
 ---
@@ -263,7 +263,7 @@ Nabatieh, Byblos, Aley, Chouf, Bint Jbeil
 | Error | Meaning | Solution |
 |-------|---------|----------|
 | `Email already exists` | Email is registered | Use different email or login |
-| `Invalid Lebanese phone` | Phone format wrong | Use format: +961 XX XXX XXXX |
+| `Invalid Lebanese phone` | Phone format wrong | Use format: +961 XXXXXXXX (8 digits) |
 | `Password must be at least 8 characters` | Password too short | Use longer password |
 | `User subscription has expired` | User's subscription ended | Renew subscription |
 | `Coupon has expired` | Coupon not valid anymore | Cannot use expired coupon |

@@ -127,7 +127,7 @@ Use the error handling patterns in **FRONTEND_INTEGRATION_GUIDE.md**:
 
 ### Validation
 - [ ] Email format validation
-- [ ] Lebanese phone format: +961 XX XXX XXXX
+- [ ] Lebanese phone format: +961 XXXXXXXX (8 digits)
 - [ ] Password minimum 8 characters
 - [ ] Coupon discount 0-100%
 - [ ] Expiry dates in the future
@@ -221,7 +221,7 @@ const totalPages = pagination.pages;
 
 ## ⚠️ Important Rules
 
-1. **Always validate Lebanese phone format:** `+961 XX XXX XXXX`
+1. **Always validate Lebanese phone format:** `+961 XXXXXXXX` (8 digits)
 2. **Always check user subscription expiry** before allowing coupon redemption
 3. **Always check coupon expiry** before allowing redemption
 4. **Never send passwords in response** - backend won't include them

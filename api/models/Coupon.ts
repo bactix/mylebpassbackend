@@ -1,8 +1,8 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
 export interface ICoupon extends Document {
   code: string;
-  businessId: Types.ObjectId;
+  businessName: string;
   discount: number;
   description: string;
   expiryDate: Date;
@@ -22,10 +22,10 @@ const couponSchema = new Schema<ICoupon>(
       uppercase: true,
       index: true,
     },
-    businessId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Business',
+    businessName: {
+      type: String,
       required: true,
+      trim: true,
       index: true,
     },
     discount: {
@@ -66,6 +66,7 @@ export const Coupon = model<ICoupon>('Coupon', couponSchema);
 
 export interface CreateCouponInput {
   code: string;
+  businessName: string;
   discount: number;
   description: string;
   expiryDate: string;
@@ -81,8 +82,7 @@ export interface UpdateCouponInput {
 export interface CouponResponse {
   id: string;
   code: string;
-  businessId: string;
-  businessName?: string;
+  businessName: string;
   discount: number;
   description: string;
   expiryDate: string;

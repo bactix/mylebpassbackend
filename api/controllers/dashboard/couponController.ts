@@ -12,7 +12,7 @@ export class CouponController {
       }
 
       const data: CreateCouponInput = req.body;
-      const coupon = await couponService.createCoupon(req.user.id, data);
+      const coupon = await couponService.createCoupon(data);
       res.status(201).json(ResponseHelper.success(coupon, 'Coupon created successfully'));
     } catch (error) {
       next(error);
@@ -33,10 +33,10 @@ export class CouponController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
-      const businessId = req.query.businessId as string | undefined;
+      const businessName = req.query.businessName as string | undefined;
       const code = req.query.code as string | undefined;
 
-      const result = await couponService.getAllCoupons(page, limit, businessId, code);
+      const result = await couponService.getAllCoupons(page, limit, businessName, code);
       res.status(200).json(ResponseHelper.success(result));
     } catch (error) {
       next(error);
@@ -52,7 +52,7 @@ export class CouponController {
 
       const { id } = req.params;
       const data: UpdateCouponInput = req.body;
-      const coupon = await couponService.updateCoupon(id, req.user.id, data);
+      const coupon = await couponService.updateCoupon(id, data);
       res.status(200).json(ResponseHelper.success(coupon, 'Coupon updated successfully'));
     } catch (error) {
       next(error);
@@ -67,7 +67,7 @@ export class CouponController {
       }
 
       const { id } = req.params;
-      await couponService.deleteCoupon(id, req.user.id);
+      await couponService.deleteCoupon(id);
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -99,7 +99,7 @@ export class CouponController {
       }
 
       const { id } = req.params;
-      const stats = await couponService.getUsageStats(id, req.user.id);
+      const stats = await couponService.getUsageStats(id);
       res.status(200).json(ResponseHelper.success(stats));
     } catch (error) {
       next(error);

@@ -3,7 +3,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 export interface ICouponUsage extends Document {
   couponId: Types.ObjectId;
   userId: Types.ObjectId;
-  businessId: Types.ObjectId;
+  businessName: string;
   usedAt: Date;
   createdAt: Date;
 }
@@ -22,10 +22,10 @@ const couponUsageSchema = new Schema<ICouponUsage>(
       required: true,
       index: true,
     },
-    businessId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Business',
+    businessName: {
+      type: String,
       required: true,
+      trim: true,
       index: true,
     },
     usedAt: {
@@ -44,6 +44,6 @@ export interface CouponUsageResponse {
   id: string;
   couponId: string;
   userId: string;
-  businessId: string;
+  businessName: string;
   usedAt: string;
 }

@@ -38,9 +38,9 @@ export class BusinessService {
       throw new NotFoundError('Business not found');
     }
 
-    const couponsCount = await Coupon.countDocuments({ businessId: id, isActive: true });
+    const couponsCount = await Coupon.countDocuments({ businessName: business.name, isActive: true });
     const totalUsageCount = await Coupon.aggregate([
-      { $match: { businessId: business._id, isActive: true } },
+      { $match: { businessName: business.name, isActive: true } },
       { $group: { _id: null, total: { $sum: '$totalUsageCount' } } },
     ]);
 
@@ -63,9 +63,9 @@ export class BusinessService {
 
     const data = await Promise.all(
       businesses.map(async b => {
-        const couponsCount = await Coupon.countDocuments({ businessId: b._id, isActive: true });
+        const couponsCount = await Coupon.countDocuments({ businessName: b.name, isActive: true });
         const totalUsageCount = await Coupon.aggregate([
-          { $match: { businessId: b._id, isActive: true } },
+          { $match: { businessName: b.name, isActive: true } },
           { $group: { _id: null, total: { $sum: '$totalUsageCount' } } },
         ]);
         return this.mapToResponse(b, couponsCount, totalUsageCount[0]?.total || 0);
@@ -95,6 +95,16 @@ export class BusinessService {
     return this.mapToResponse(business);
   }
 
+  async deleteBusiness(id: string): Promise<BusinessResponse> {
+    const business = await Business.findByIdAndDelete(id);
+    if (!business) {
+      throw new NotFoundError('Business not found');
+    }
+
+    logger.info(`Business deleted: ${business.email}`);
+    return this.mapToResponse(business);
+  }
+
   async getUsageRemaining(id: string): Promise<any> {
     const business = await Business.findById(id);
     if (!business) {
@@ -109,7 +119,7 @@ export class BusinessService {
     }
 
     const totalUsageCount = await Coupon.aggregate([
-      { $match: { businessId: business._id, isActive: true } },
+      { $match: { businessName: business.name, isActive: true } },
       { $group: { _id: null, total: { $sum: '$totalUsageCount' } } },
     ]);
 

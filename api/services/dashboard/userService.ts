@@ -88,12 +88,13 @@ export class UserService {
     return this.mapToResponse(user);
   }
 
-  async deleteUser(id: string): Promise<void> {
-    const user = await User.findByIdAndUpdate(id, { status: 'inactive' }, { new: true });
+  async deleteUser(id: string): Promise<UserResponse> {
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
-    logger.info(`User deleted (soft): ${user.email}`);
+    logger.info(`User deleted: ${user.email}`);
+    return this.mapToResponse(user);
   }
 
   private mapToResponse(user: any): UserResponse {

@@ -35,7 +35,7 @@ export class BusinessValidation {
     }
 
     if (!data.phone || !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XX XXX XXXX');
+      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
     }
 
     if (!data.ownerName || data.ownerName.trim().length === 0) {
@@ -71,7 +71,7 @@ export class BusinessValidation {
     }
 
     if (data.phone !== undefined && !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XX XXX XXXX');
+      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
     }
 
     if (data.ownerName !== undefined && data.ownerName.trim().length === 0) {
@@ -89,7 +89,7 @@ export class BusinessValidation {
   }
 
   private static isValidLebanesPhone(phone: string): boolean {
-    const phoneRegex = /^\+961 \d{1,2} \d{3} \d{3,4}$/;
+    const phoneRegex = /^\+961 \d{8}$/;
     return phoneRegex.test(phone);
   }
 }

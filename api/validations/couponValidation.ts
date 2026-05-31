@@ -7,6 +7,10 @@ export class CouponValidation {
       throw new ValidationError('Coupon code is required');
     }
 
+    if (!data.businessName || data.businessName.trim().length === 0) {
+      throw new ValidationError('Business name is required');
+    }
+
     if (!Number.isInteger(data.discount) || data.discount < 0 || data.discount > 100) {
       throw new ValidationError('Discount must be a number between 0 and 100');
     }

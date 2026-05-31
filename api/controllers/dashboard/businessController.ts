@@ -49,6 +49,16 @@ export class BusinessController {
     }
   }
 
+  async deleteBusiness(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const business = await businessService.deleteBusiness(id);
+      res.status(200).json(ResponseHelper.success(business, 'Business deleted successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getUsageRemaining(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;

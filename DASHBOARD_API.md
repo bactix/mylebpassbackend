@@ -55,7 +55,7 @@ GET    /coupons/:id/usage-stats           # Usage statistics (business only)
 - Name required and non-empty
 - Valid email format
 - Password minimum 8 characters
-- Lebanese phone format: `+961 XX XXX XXXX`
+- Lebanese phone format: `+961 XXXXXXXX` (8 digits)
 - Status: active or inactive
 - Auto expiry date: 1 year from creation
 
@@ -113,7 +113,7 @@ JWT_SECRET=your_secret_key_change_this_in_production
      "name": "John Doe",
      "email": "john@example.com",
      "password": "securepass123",
-     "phone": "+961 71 123 456",
+     "phone": "+961 71123456",
      "status": "active"
    }
    ```
@@ -137,7 +137,7 @@ JWT_SECRET=your_secret_key_change_this_in_production
      "type": "restaurant",
      "email": "owner@restaurant.com",
      "password": "securepass123",
-     "phone": "+961 71 111 111",
+     "phone": "+961 71111111",
      "ownerName": "Owner Name",
      "city": "Beirut",
      "businessModel": "limited",

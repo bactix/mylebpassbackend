@@ -158,7 +158,7 @@ const registerUser = async (userData) => {
       name: 'John Doe',
       email: 'john@example.com',
       password: 'securepass123',  // Min 8 characters
-      phone: '+961 71 123 456',    // Format: +961 XX XXX XXXX
+      phone: '+961 71123456',    // Format: +961 XXXXXXXX (8 digits)
       status: 'active'             // Optional, defaults to 'active'
     });
 
@@ -357,7 +357,7 @@ const registerBusiness = async (businessData) => {
       type: 'restaurant',                     // restaurant | hotel | other
       email: 'owner@restaurant.com',
       password: 'securepass123',             // Min 8 characters
-      phone: '+961 71 111 111',              // Format: +961 XX XXX XXXX
+      phone: '+961 71111111',              // Format: +961 XXXXXXXX (8 digits)
       ownerName: 'Owner Name',
       city: 'Beirut',                        // One of 12 Lebanese cities
       businessModel: 'limited',              // unlimited | limited
@@ -969,7 +969,7 @@ export const handleApiError = (error) => {
       return { field: 'email', message: 'This email is already registered' };
     }
     if (message.includes('Invalid Lebanese phone')) {
-      return { field: 'phone', message: 'Phone must be in format: +961 XX XXX XXXX' };
+      return { field: 'phone', message: 'Phone must be in format: +961 XXXXXXXX (8 digits)' };
     }
     if (message.includes('Password must be')) {
       return { field: 'password', message: 'Password must be at least 8 characters' };

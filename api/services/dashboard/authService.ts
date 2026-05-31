@@ -1,8 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { db } from '../../config/database';
-import { User } from '../../models/User';
-import { Business } from '../../models/Business';
+import { Admin } from '../../models/Admin';
 import { UnauthorizedError } from '../../helpers/errors';
 import logger from '../../config/logger';
 
@@ -16,31 +14,31 @@ interface AuthResponse {
   user: {
     id: string;
     email: string;
-    role: 'user';
+    role: 'admin';
   };
 }
 
 export class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const user = await User.findOne({ email: credentials.email.toLowerCase() });
-    if (!user) {
+    const admin = await Admin.findOne({ email: credentials.email.toLowerCase() });
+    if (!admin) {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    const passwordMatch = await bcrypt.compare(credentials.password, user.password);
+    const passwordMatch = await bcrypt.compare(credentials.password, admin.password);
     if (!passwordMatch) {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    const token = this.generateToken(user._id.toString(), user.email, 'user');
-    logger.info(`User logged in: ${user.email}`);
+    const token = this.generateToken(admin._id.toString(), admin.email, 'admin');
+    logger.info(`Admin logged in: ${admin.email}`);
 
     return {
       token,
       user: {
-        id: user._id.toString(),
-        email: user.email,
-        role: 'user',
+        id: admin._id.toString(),
+        email: admin.email,
+        role: 'admin',
       },
     };
   }
