@@ -1,7 +1,9 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { Admin } from '../../models/Admin';
+import { User } from '../../models/User';
+import { Business } from '../../models/Business';
 import { UnauthorizedError } from '../../helpers/errors';
+import { generateToken } from '../../helpers/jwt';
 import logger from '../../config/logger';
 
 interface LoginCredentials {
@@ -20,7 +22,24 @@ interface AuthResponse {
 
 export class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const admin = await Admin.findOne({ email: credentials.email.toLowerCase() });
+    const email = credentials.email.toLowerCase();
+
+    // Check if email exists in User collection
+    const user = await User.findOne({ email });
+    if (user) {
+      throw new UnauthorizedError('This account is registered as a regular user. Please use the user login endpoint.');
+    }
+
+    // Check if email exists in Business collection
+    const business = await Business.findOne({ email });
+    if (business) {
+      throw new UnauthorizedError('This account is registered as a business. Please use the business login endpoint.');
+    }
+
+    const admin = await Admin.findOne({
+      email,
+      $or: [{ type: 'admin' }, { type: { $exists: false } }]
+    });
     if (!admin) {
       throw new UnauthorizedError('Invalid email or password');
     }
@@ -30,7 +49,7 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    const token = this.generateToken(admin._id.toString(), admin.email, 'admin');
+    const token = generateToken(admin._id.toString(), admin.email, 'admin');
     logger.info(`Admin logged in: ${admin.email}`);
 
     return {
@@ -41,21 +60,6 @@ export class AuthService {
         role: 'admin',
       },
     };
-  }
-
-  private generateToken(id: string, email: string, role: 'user' | 'business' | 'admin'): string {
-    const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const expiresIn = '24h';
-
-    return jwt.sign(
-      {
-        id,
-        email,
-        role,
-      },
-      secret,
-      { expiresIn }
-    );
   }
 }
 

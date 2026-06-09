@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { Business, CreateBusinessInput, UpdateBusinessInput, BusinessResponse } from '../../models/Business';
 import { Coupon } from '../../models/Coupon';
 import { BusinessValidation } from '../../validations/businessValidation';
@@ -14,12 +13,10 @@ export class BusinessService {
       throw new ConflictError('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
     const business = new Business({
       name: data.name,
       type: data.type,
       email: data.email.toLowerCase(),
-      password: hashedPassword,
       phone: data.phone,
       ownerName: data.ownerName,
       city: data.city,

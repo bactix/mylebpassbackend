@@ -19,6 +19,7 @@ export type LebanesCity =
 export interface IBusiness extends Document {
   name: string;
   type: BusinessType;
+  accountType: 'business';
   email: string;
   password: string;
   phone: string;
@@ -42,6 +43,13 @@ const businessSchema = new Schema<IBusiness>(
       required: true,
       index: true,
     },
+    accountType: {
+      type: String,
+      enum: ['business'],
+      default: 'business',
+      required: true,
+      index: true,
+    },
     email: {
       type: String,
       required: true,
@@ -51,7 +59,7 @@ const businessSchema = new Schema<IBusiness>(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     phone: {
       type: String,
@@ -86,7 +94,6 @@ export interface CreateBusinessInput {
   name: string;
   type: BusinessType;
   email: string;
-  password: string;
   phone: string;
   ownerName: string;
   city: LebanesCity;

@@ -5,9 +5,15 @@ import { Router } from 'express';
 // services/app/userService.ts). Re-enable by restoring these two lines, fixing
 // those files, and removing the tsconfig excludes.
 // import userRoutes from './userRoutes';
+import authRoutes from './authRoutes';
+import meRoutes from './meRoutes';
+import businessMeRoutes from './businessMeRoutes';
 
 const router = Router();
 
 // router.use('/users', userRoutes);
+router.use('/auth', authRoutes);
+router.use('/me', meRoutes);
+router.use('/business/me', businessMeRoutes);
 
 export default router;

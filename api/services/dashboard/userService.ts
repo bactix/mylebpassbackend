@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { User, CreateUserInput, UpdateUserInput, UserResponse } from '../../models/User';
 import { UserValidation } from '../../validations/userValidation';
 import { ConflictError, NotFoundError } from '../../helpers/errors';
@@ -16,13 +15,11 @@ export class UserService {
     const now = new Date();
     const expiryDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = new User({
       name: data.name,
       email: data.email.toLowerCase(),
-      password: hashedPassword,
       phone: data.phone,
-      status: data.status || 'active',
+      status: data.status || 'inactive',
       startDate: now,
       expiryDate,
     });

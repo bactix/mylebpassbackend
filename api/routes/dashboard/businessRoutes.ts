@@ -8,9 +8,8 @@ router.post('/', authenticate, requireRole('admin'), (req, res, next) =>
   businessController.createBusiness(req, res, next)
 );
 router.get('/', (req, res, next) => businessController.getAllBusinesses(req, res, next));
-router.get('/:id', authenticate, requireRole('admin'), (req, res, next) =>
-  businessController.getBusiness(req, res, next)
-);
+router.get('/search', (req, res, next) => businessController.searchByCategory(req, res, next));
+router.get('/:id', (req, res, next) => businessController.getBusiness(req, res, next));
 router.put('/:id', authenticate, requireRole('admin'), (req, res, next) =>
   businessController.updateBusiness(req, res, next)
 );

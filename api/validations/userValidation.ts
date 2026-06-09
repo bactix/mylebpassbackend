@@ -11,10 +11,6 @@ export class UserValidation {
       throw new ValidationError('Invalid email format');
     }
 
-    if (!data.password || data.password.length < 8) {
-      throw new ValidationError('Password must be at least 8 characters');
-    }
-
     if (!data.phone || !this.isValidLebanesPhone(data.phone)) {
       throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
     }

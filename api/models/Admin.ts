@@ -3,6 +3,7 @@ import { Schema, model, Document } from 'mongoose';
 export interface IAdmin extends Document {
   email: string;
   password: string;
+  type: 'admin';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,6 +20,13 @@ const adminSchema = new Schema<IAdmin>(
     password: {
       type: String,
       required: true,
+    },
+    type: {
+      type: String,
+      enum: ['admin'],
+      default: 'admin',
+      required: true,
+      index: true,
     },
   },
   {

@@ -38,6 +38,19 @@ export class BusinessController {
     }
   }
 
+  async searchByCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const category = req.query.category as string | undefined;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const result = await businessService.getAllBusinesses(page, limit, category, undefined);
+      res.status(200).json(ResponseHelper.success(result));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateBusiness(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;

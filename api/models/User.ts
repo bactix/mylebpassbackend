@@ -5,7 +5,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   phone: string;
-  status: 'active' | 'inactive';
+  type: 'user';
+  status: 'active' | 'inactive' | 'pending';
   startDate: Date;
   expiryDate: Date;
   createdAt: Date;
@@ -27,16 +28,23 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     phone: {
       type: String,
       required: true,
     },
+    type: {
+      type: String,
+      enum: ['user'],
+      default: 'user',
+      required: true,
+      index: true,
+    },
     status: {
       type: String,
-      enum: ['active', 'inactive'],
-      default: 'active',
+      enum: ['active', 'inactive', 'pending'],
+      default: 'pending',
       index: true,
     },
     startDate: {
@@ -61,15 +69,14 @@ export const User = model<IUser>('User', userSchema);
 export interface CreateUserInput {
   name: string;
   email: string;
-  password: string;
   phone: string;
-  status?: 'active' | 'inactive';
+  status?: 'active' | 'inactive' | 'pending';
 }
 
 export interface UpdateUserInput {
   name?: string;
   phone?: string;
-  status?: 'active' | 'inactive';
+  status?: 'active' | 'inactive' | 'pending';
 }
 
 export interface UserResponse {
@@ -77,7 +84,7 @@ export interface UserResponse {
   name: string;
   email: string;
   phone: string;
-  status: 'active' | 'inactive';
+  status: 'active' | 'inactive' | 'pending';
   startDate: string;
   expiryDate: string;
   createdAt: string;
