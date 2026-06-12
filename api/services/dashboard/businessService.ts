@@ -1,8 +1,20 @@
+import { Types } from 'mongoose';
 import { Business, CreateBusinessInput, UpdateBusinessInput, BusinessResponse } from '../../models/Business';
 import { Coupon } from '../../models/Coupon';
+import { User } from '../../models/User';
+import { Discount } from '../../models/Discount';
 import { BusinessValidation } from '../../validations/businessValidation';
 import { ConflictError, NotFoundError } from '../../helpers/errors';
+import { toAbsoluteMediaUrl, toAbsoluteMediaUrls } from '../../helpers/media';
 import logger from '../../config/logger';
+
+export interface BusinessForUserResponse extends BusinessResponse {
+  userUsage: {
+    usageCount: number;
+    periodStart: string;
+    periodEnd: string;
+  };
+}
 
 export class BusinessService {
   async createBusiness(data: CreateBusinessInput): Promise<BusinessResponse> {
@@ -20,6 +32,8 @@ export class BusinessService {
       phone: data.phone,
       ownerName: data.ownerName,
       city: data.city,
+      address: data.address,
+      about: data.about,
       businessModel: data.businessModel,
       usageLimit: data.businessModel === 'limited' ? data.usageLimit : undefined,
     });
@@ -42,6 +56,37 @@ export class BusinessService {
     ]);
 
     return this.mapToResponse(business, couponsCount, totalUsageCount[0]?.total || 0);
+  }
+
+  async getBusinessForUser(businessId: string, userId: string): Promise<BusinessForUserResponse> {
+    const business = await Business.findById(businessId);
+    if (!business) {
+      throw new NotFoundError('Business not found');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Count how many discounts this user has used at this business within
+    // their subscription period (startDate -> expiryDate).
+    const usageCount = await Discount.countDocuments({
+      userId: new Types.ObjectId(userId),
+      businessId: new Types.ObjectId(businessId),
+      discountedAt: { $gte: user.startDate, $lte: user.expiryDate },
+    });
+
+    const couponsCount = await Coupon.countDocuments({ businessName: business.name, isActive: true });
+
+    return {
+      ...this.mapToResponse(business, couponsCount),
+      userUsage: {
+        usageCount,
+        periodStart: user.startDate.toISOString(),
+        periodEnd: user.expiryDate.toISOString(),
+      },
+    };
   }
 
   async getAllBusinesses(page: number = 1, limit: number = 20, type?: string, city?: string): Promise<{ data: BusinessResponse[]; pagination: any }> {
@@ -140,8 +185,12 @@ export class BusinessService {
       phone: business.phone,
       ownerName: business.ownerName,
       city: business.city,
+      address: business.address,
+      about: business.about,
       businessModel: business.businessModel,
       usageLimit: business.usageLimit,
+      profilePicture: toAbsoluteMediaUrl(business.profilePicture),
+      gallery: toAbsoluteMediaUrls(business.gallery),
       couponsCount,
       totalUsageCount,
       createdAt: business.createdAt.toISOString(),

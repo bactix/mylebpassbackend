@@ -6,7 +6,7 @@ interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;
-    role: string;
+    role: 'user' | 'business' | 'admin';
   };
   token?: string;
 }

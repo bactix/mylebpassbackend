@@ -1,13 +1,26 @@
 import bcrypt from 'bcryptjs';
 import { Business } from '../../models/Business';
 import { User } from '../../models/User';
-import { UnauthorizedError } from '../../helpers/errors';
+import { UnauthorizedError, ConflictError, ValidationError } from '../../helpers/errors';
 import { generateToken } from '../../helpers/jwt';
 import logger from '../../config/logger';
 
 interface LoginCredentials {
   email: string;
   password: string;
+}
+
+interface RegisterCredentials {
+  name: string;
+  type: 'restaurant' | 'hotel' | 'other';
+  email: string;
+  phone: string;
+  ownerName: string;
+  city: string;
+  address: string;
+  about: string;
+  password: string;
+  confirmPassword: string;
 }
 
 interface BusinessAuthResponse {
@@ -20,7 +33,125 @@ interface BusinessAuthResponse {
   };
 }
 
+interface RegisterResponse {
+  business: {
+    id: string;
+    email: string;
+    name: string;
+    ownerName: string;
+    phone: string;
+    type: string;
+    address: string;
+    city: string;
+    status: string;
+  };
+  message: string;
+}
+
 export class BusinessAuthService {
+  async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
+    const email = credentials.email.toLowerCase();
+
+    this.validateRegisterInput(credentials);
+
+    const existingBusiness = await Business.findOne({ email });
+    if (existingBusiness) {
+      throw new ConflictError('Email already registered as a business');
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new ConflictError('This email is registered as a user account');
+    }
+
+    const hashedPassword = await bcrypt.hash(credentials.password, 10);
+
+    const business = new Business({
+      name: credentials.name,
+      type: credentials.type,
+      email,
+      phone: credentials.phone,
+      ownerName: credentials.ownerName,
+      city: credentials.city,
+      address: credentials.address,
+      about: credentials.about,
+      password: hashedPassword,
+      accountType: 'business',
+      status: 'inactive',
+      businessModel: 'limited',
+    });
+
+    await business.save();
+    logger.info(`New business registered: ${email}`);
+
+    return {
+      business: {
+        id: business._id.toString(),
+        email: business.email,
+        name: business.name,
+        ownerName: business.ownerName,
+        phone: business.phone,
+        type: business.type,
+        address: business.address,
+        city: business.city,
+        status: business.status,
+      },
+      message: 'Business account created successfully. Please wait for admin activation.',
+    };
+  }
+
+  private validateRegisterInput(credentials: RegisterCredentials): void {
+    if (!credentials.name || credentials.name.trim().length === 0) {
+      throw new ValidationError('Restaurant name is required');
+    }
+
+    if (!credentials.ownerName || credentials.ownerName.trim().length === 0) {
+      throw new ValidationError('Owner name is required');
+    }
+
+    if (!credentials.email || !this.isValidEmail(credentials.email)) {
+      throw new ValidationError('Invalid email format');
+    }
+
+    if (!credentials.phone || !this.isValidLebanesPhone(credentials.phone)) {
+      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+    }
+
+    if (!credentials.type || !['restaurant', 'hotel', 'other'].includes(credentials.type)) {
+      throw new ValidationError('Invalid business type');
+    }
+
+    if (!credentials.city || credentials.city.trim().length === 0) {
+      throw new ValidationError('City is required');
+    }
+
+    if (!credentials.address || credentials.address.trim().length === 0) {
+      throw new ValidationError('Address is required');
+    }
+
+    if (!credentials.about || credentials.about.trim().length === 0) {
+      throw new ValidationError('About section is required');
+    }
+
+    if (!credentials.password || credentials.password.length < 8) {
+      throw new ValidationError('Password must be at least 8 characters long');
+    }
+
+    if (credentials.password !== credentials.confirmPassword) {
+      throw new ValidationError('Passwords do not match');
+    }
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  private isValidLebanesPhone(phone: string): boolean {
+    const phoneRegex = /^\+961 \d{8}$/;
+    return phoneRegex.test(phone);
+  }
+
   async login(credentials: LoginCredentials): Promise<BusinessAuthResponse> {
     const email = credentials.email.toLowerCase();
 

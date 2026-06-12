@@ -1,4 +1,5 @@
 import express, { Express } from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import logger from './config/logger';
@@ -9,7 +10,9 @@ export const createApp = (): Express => {
   const app = express();
 
   // Security middleware
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
   app.use(cors());
 
   // Body parsing
@@ -21,6 +24,9 @@ export const createApp = (): Express => {
     logger.info(`${req.method} ${req.path}`);
     next();
   });
+
+  // Serve uploaded images
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // Health check
   app.get('/health', (_req, res) => {

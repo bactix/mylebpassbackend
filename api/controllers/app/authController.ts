@@ -8,7 +8,65 @@ interface LoginRequest {
   password: string;
 }
 
+interface RegisterRequest {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface BusinessRegisterRequest {
+  name: string;
+  type: 'restaurant' | 'hotel' | 'other';
+  email: string;
+  phone: string;
+  ownerName: string;
+  city: string;
+  address: string;
+  about: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export class AppAuthController {
+  async businessRegister(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { name, type, email, phone, ownerName, city, address, about, password, confirmPassword } = req.body as BusinessRegisterRequest;
+      const result = await businessAuthService.register({
+        name,
+        type,
+        email,
+        phone,
+        ownerName,
+        city,
+        address,
+        about,
+        password,
+        confirmPassword,
+      });
+      res.status(201).json(ResponseHelper.success(result, 'Business account created successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async userRegister(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { name, email, phone, password, confirmPassword } = req.body as RegisterRequest;
+      const result = await userAuthService.register({
+        name,
+        email,
+        phone,
+        password,
+        confirmPassword,
+      });
+      res.status(201).json(ResponseHelper.success(result, 'Account created successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async userLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, password } = req.body as LoginRequest;

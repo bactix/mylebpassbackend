@@ -25,8 +25,13 @@ export interface IBusiness extends Document {
   phone: string;
   ownerName: string;
   city: LebanesCity;
+  address: string;
+  about: string;
+  status: 'active' | 'inactive' | 'pending';
   businessModel: BusinessModel;
   usageLimit?: number;
+  profilePicture?: string;
+  gallery?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -74,6 +79,20 @@ const businessSchema = new Schema<IBusiness>(
       required: true,
       index: true,
     },
+    address: {
+      type: String,
+      required: true,
+    },
+    about: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'pending'],
+      default: 'inactive',
+      index: true,
+    },
     businessModel: {
       type: String,
       enum: ['unlimited', 'limited'],
@@ -81,6 +100,13 @@ const businessSchema = new Schema<IBusiness>(
     },
     usageLimit: {
       type: Number,
+    },
+    profilePicture: {
+      type: String,
+    },
+    gallery: {
+      type: [String],
+      default: [],
     },
   },
   {
@@ -97,6 +123,8 @@ export interface CreateBusinessInput {
   phone: string;
   ownerName: string;
   city: LebanesCity;
+  address: string;
+  about: string;
   businessModel: BusinessModel;
   usageLimit?: number;
 }
@@ -106,6 +134,9 @@ export interface UpdateBusinessInput {
   type?: BusinessType;
   phone?: string;
   ownerName?: string;
+  city?: LebanesCity;
+  address?: string;
+  about?: string;
   usageLimit?: number;
 }
 
@@ -119,6 +150,10 @@ export interface BusinessResponse {
   city: LebanesCity;
   businessModel: BusinessModel;
   usageLimit?: number;
+  address: string;
+  about: string;
+  profilePicture?: string;
+  gallery?: string[];
   couponsCount?: number;
   totalUsageCount?: number;
   createdAt: string;

@@ -44,6 +44,14 @@ export class BusinessValidation {
       );
     }
 
+    if (!data.address || data.address.trim().length === 0) {
+      throw new ValidationError('Address is required');
+    }
+
+    if (!data.about || data.about.trim().length === 0) {
+      throw new ValidationError('About is required');
+    }
+
     if (!data.businessModel || !['unlimited', 'limited'].includes(data.businessModel)) {
       throw new ValidationError('Business model must be either "unlimited" or "limited"');
     }
@@ -72,6 +80,20 @@ export class BusinessValidation {
 
     if (data.ownerName !== undefined && data.ownerName.trim().length === 0) {
       throw new ValidationError('Owner name cannot be empty');
+    }
+
+    if (data.city !== undefined && !LEBANESE_CITIES.includes(data.city)) {
+      throw new ValidationError(
+        `City must be one of: ${LEBANESE_CITIES.join(', ')}`
+      );
+    }
+
+    if (data.address !== undefined && data.address.trim().length === 0) {
+      throw new ValidationError('Address cannot be empty');
+    }
+
+    if (data.about !== undefined && data.about.trim().length === 0) {
+      throw new ValidationError('About cannot be empty');
     }
 
     if (data.usageLimit !== undefined && data.usageLimit < 1) {

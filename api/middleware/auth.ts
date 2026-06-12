@@ -7,7 +7,7 @@ interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;
-    role: string;
+    role: 'user' | 'business' | 'admin';
   };
   token?: string;
 }
@@ -27,7 +27,7 @@ export async function authenticateToken(req: AuthenticatedRequest, res: Response
     }
 
     const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const decoded = jwt.verify(token, secret) as { id: string; email: string; role: string };
+    const decoded = jwt.verify(token, secret) as { id: string; email: string; role: 'user' | 'business' | 'admin' };
 
     req.user = decoded;
     req.token = token;

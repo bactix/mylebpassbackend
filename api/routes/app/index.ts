@@ -8,6 +8,8 @@ import { Router } from 'express';
 import authRoutes from './authRoutes';
 import meRoutes from './meRoutes';
 import businessMeRoutes from './businessMeRoutes';
+import businessRoutes from './businessRoutes';
+import discountRoutes from './discountRoutes';
 
 const router = Router();
 
@@ -15,5 +17,7 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/me', meRoutes);
 router.use('/business/me', businessMeRoutes);
+router.use('/businesses', businessRoutes);
+router.use('/discounts', discountRoutes);
 
 export default router;
