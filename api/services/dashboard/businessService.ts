@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import bcrypt from 'bcryptjs';
 import { Business, CreateBusinessInput, UpdateBusinessInput, BusinessResponse } from '../../models/Business';
 import { Coupon } from '../../models/Coupon';
 import { User } from '../../models/User';
@@ -6,11 +7,16 @@ import { Discount } from '../../models/Discount';
 import { BusinessValidation } from '../../validations/businessValidation';
 import { ConflictError, NotFoundError } from '../../helpers/errors';
 import { toAbsoluteMediaUrl, toAbsoluteMediaUrls } from '../../helpers/media';
+import { DEFAULT_LIMITED_BUSINESS_USAGE_CAP } from './discountService';
 import logger from '../../config/logger';
 
 export interface BusinessForUserResponse extends BusinessResponse {
   userUsage: {
     usageCount: number;
+    // Per-user cap at this business (null for unlimited businesses).
+    usageLimit: number | null;
+    // Discounts the user still has at this business this period (null = unlimited).
+    remaining: number | null;
     periodStart: string;
     periodEnd: string;
   };
@@ -25,6 +31,8 @@ export class BusinessService {
       throw new ConflictError('Email already exists');
     }
 
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
     const business = new Business({
       name: data.name,
       type: data.type,
@@ -34,6 +42,8 @@ export class BusinessService {
       city: data.city,
       address: data.address,
       about: data.about,
+      password: hashedPassword,
+      accountType: 'business',
       businessModel: data.businessModel,
       usageLimit: data.businessModel === 'limited' ? data.usageLimit : undefined,
     });
@@ -79,10 +89,20 @@ export class BusinessService {
 
     const couponsCount = await Coupon.countDocuments({ businessName: business.name, isActive: true });
 
+    // Limited businesses cap each user at usageLimit per subscription period;
+    // unlimited businesses have no cap (null).
+    const usageLimit =
+      business.businessModel === 'limited'
+        ? business.usageLimit ?? DEFAULT_LIMITED_BUSINESS_USAGE_CAP
+        : null;
+    const remaining = usageLimit === null ? null : Math.max(0, usageLimit - usageCount);
+
     return {
       ...this.mapToResponse(business, couponsCount),
       userUsage: {
         usageCount,
+        usageLimit,
+        remaining,
         periodStart: user.startDate.toISOString(),
         periodEnd: user.expiryDate.toISOString(),
       },
@@ -145,6 +165,12 @@ export class BusinessService {
 
     logger.info(`Business deleted: ${business.email}`);
     return this.mapToResponse(business);
+  }
+
+  async deleteAllBusinesses(): Promise<{ deletedCount: number }> {
+    const result = await Business.deleteMany({});
+    logger.warn(`All businesses deleted: ${result.deletedCount} removed`);
+    return { deletedCount: result.deletedCount ?? 0 };
   }
 
   async getUsageRemaining(id: string): Promise<any> {

@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { User, CreateUserInput, UpdateUserInput, UserResponse } from '../../models/User';
 import { UserValidation } from '../../validations/userValidation';
 import { ConflictError, NotFoundError } from '../../helpers/errors';
@@ -15,10 +16,14 @@ export class UserService {
     const now = new Date();
     const expiryDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
 
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
     const user = new User({
       name: data.name,
       email: data.email.toLowerCase(),
       phone: data.phone,
+      password: hashedPassword,
+      type: 'user',
       status: data.status || 'inactive',
       startDate: now,
       expiryDate,
@@ -92,6 +97,12 @@ export class UserService {
     }
     logger.info(`User deleted: ${user.email}`);
     return this.mapToResponse(user);
+  }
+
+  async deleteAllUsers(): Promise<{ deletedCount: number }> {
+    const result = await User.deleteMany({});
+    logger.warn(`All users deleted: ${result.deletedCount} removed`);
+    return { deletedCount: result.deletedCount ?? 0 };
   }
 
   private mapToResponse(user: any): UserResponse {

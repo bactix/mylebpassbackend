@@ -10,4 +10,9 @@ router.post('/', authenticate, requireRole('business'), (req, res, next) =>
   discountController.recordDiscount(req, res, next)
 );
 
+// List the discounts recorded at the authenticated business (paginated).
+router.get('/', authenticate, requireRole('business'), (req, res, next) =>
+  discountController.getMyDiscounts(req, res, next)
+);
+
 export default router;

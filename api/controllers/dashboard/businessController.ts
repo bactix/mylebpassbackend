@@ -72,6 +72,21 @@ export class BusinessController {
     }
   }
 
+  async deleteAllBusinesses(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (req.query.confirm !== 'true') {
+        res
+          .status(400)
+          .json(ResponseHelper.error('This permanently deletes ALL businesses. Pass ?confirm=true to proceed.'));
+        return;
+      }
+      const result = await businessService.deleteAllBusinesses();
+      res.status(200).json(ResponseHelper.success(result, `Deleted ${result.deletedCount} business(es)`));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getUsageRemaining(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;

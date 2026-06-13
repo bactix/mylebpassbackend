@@ -125,6 +125,7 @@ export interface CreateBusinessInput {
   city: LebanesCity;
   address: string;
   about: string;
+  password: string;
   businessModel: BusinessModel;
   usageLimit?: number;
 }

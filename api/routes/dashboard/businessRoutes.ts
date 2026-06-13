@@ -16,6 +16,9 @@ router.put('/:id', authenticate, requireRole('admin'), (req, res, next) =>
 router.get('/:id/usage-remaining', authenticate, requireRole('admin'), (req, res, next) =>
   businessController.getUsageRemaining(req, res, next)
 );
+router.delete('/', authenticate, requireRole('admin'), (req, res, next) =>
+  businessController.deleteAllBusinesses(req, res, next)
+);
 router.delete('/:id', authenticate, requireRole('admin'), (req, res, next) =>
   businessController.deleteBusiness(req, res, next)
 );

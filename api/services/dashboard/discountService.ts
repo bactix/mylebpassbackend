@@ -6,7 +6,8 @@ import { DiscountValidation } from '../../validations/discountValidation';
 import { ForbiddenError, NotFoundError } from '../../helpers/errors';
 import logger from '../../config/logger';
 
-const LIMITED_BUSINESS_USAGE_CAP = 12;
+// Fallback cap for a limited business that has no usageLimit configured.
+export const DEFAULT_LIMITED_BUSINESS_USAGE_CAP = 12;
 
 export class DiscountService {
   // The business is authenticated (it scans the member's QR), so businessId
@@ -25,17 +26,20 @@ export class DiscountService {
     }
 
     // Limited-model businesses cap how many times a user can claim a discount
-    // within their current subscription period (startDate -> expiryDate).
+    // within their current subscription period (startDate -> expiryDate). The
+    // cap is the business's configured usageLimit, falling back to a default.
     if (business.businessModel === 'limited') {
+      const cap = business.usageLimit ?? DEFAULT_LIMITED_BUSINESS_USAGE_CAP;
+
       const usageCount = await Discount.countDocuments({
         userId: new Types.ObjectId(data.userId),
         businessId: new Types.ObjectId(businessId),
         discountedAt: { $gte: user.startDate, $lte: user.expiryDate },
       });
 
-      if (usageCount >= LIMITED_BUSINESS_USAGE_CAP) {
+      if (usageCount >= cap) {
         throw new ForbiddenError(
-          `Discount limit reached: this business allows up to ${LIMITED_BUSINESS_USAGE_CAP} uses per subscription period`
+          `Discount limit reached: this business allows up to ${cap} uses per subscription period`
         );
       }
     }

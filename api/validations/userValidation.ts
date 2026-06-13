@@ -15,6 +15,10 @@ export class UserValidation {
       throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
     }
 
+    if (!data.password || data.password.length < 8) {
+      throw new ValidationError('Password must be at least 8 characters long');
+    }
+
     if (data.status && !['active', 'inactive'].includes(data.status)) {
       throw new ValidationError('Status must be either "active" or "inactive"');
     }

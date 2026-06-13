@@ -11,6 +11,7 @@ router.put('/:id', authenticate, requireRole('admin'), (req, res, next) => userC
 router.post('/:id/renew', authenticate, requireRole('admin'), (req, res, next) =>
   userController.renewUser(req, res, next)
 );
+router.delete('/', authenticate, requireRole('admin'), (req, res, next) => userController.deleteAllUsers(req, res, next));
 router.delete('/:id', authenticate, requireRole('admin'), (req, res, next) => userController.deleteUser(req, res, next));
 
 export default router;

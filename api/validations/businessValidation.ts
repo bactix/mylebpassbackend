@@ -52,6 +52,10 @@ export class BusinessValidation {
       throw new ValidationError('About is required');
     }
 
+    if (!data.password || data.password.length < 8) {
+      throw new ValidationError('Password must be at least 8 characters long');
+    }
+
     if (!data.businessModel || !['unlimited', 'limited'].includes(data.businessModel)) {
       throw new ValidationError('Business model must be either "unlimited" or "limited"');
     }

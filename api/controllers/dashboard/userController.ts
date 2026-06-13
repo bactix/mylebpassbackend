@@ -80,6 +80,21 @@ export class UserController {
       next(error);
     }
   }
+
+  async deleteAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (req.query.confirm !== 'true') {
+        res
+          .status(400)
+          .json(ResponseHelper.error('This permanently deletes ALL users. Pass ?confirm=true to proceed.'));
+        return;
+      }
+      const result = await userService.deleteAllUsers();
+      res.status(200).json(ResponseHelper.success(result, `Deleted ${result.deletedCount} user(s)`));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const userController = new UserController();

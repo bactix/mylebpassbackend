@@ -5,6 +5,9 @@ import { UnauthorizedError, ConflictError, ValidationError } from '../../helpers
 import { generateToken } from '../../helpers/jwt';
 import logger from '../../config/logger';
 
+// Fixed discount usage limit assigned to every self-registered business.
+const SELF_REGISTER_USAGE_LIMIT = 12;
+
 interface LoginCredentials {
   email: string;
   password: string;
@@ -79,6 +82,8 @@ export class BusinessAuthService {
       accountType: 'business',
       status: 'inactive',
       businessModel: 'limited',
+      // Self-registered businesses always get a fixed usage limit of 12.
+      usageLimit: SELF_REGISTER_USAGE_LIMIT,
     });
 
     await business.save();
