@@ -37,9 +37,11 @@ const discountSchema = new Schema<IDiscount>(
 export const Discount = model<IDiscount>('Discount', discountSchema);
 
 export interface RecordDiscountInput {
-  // The business is taken from the authenticated JWT; the member's id comes
-  // from the scanned QR code.
+  // Both ids come from the scanned QR code. The userId identifies the member;
+  // the businessId must match the authenticated business's JWT id, otherwise
+  // the QR belongs to a different business and the scan is rejected.
   userId: string;
+  businessId: string;
 }
 
 export interface DiscountResponse {

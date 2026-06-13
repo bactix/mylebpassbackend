@@ -11,5 +11,13 @@ export class DiscountValidation {
     if (!data.userId || !Types.ObjectId.isValid(data.userId)) {
       throw new ValidationError('A valid userId is required');
     }
+
+    if (typeof data.businessId === 'string') {
+      data.businessId = data.businessId.trim();
+    }
+
+    if (!data.businessId || !Types.ObjectId.isValid(data.businessId)) {
+      throw new ValidationError('A valid businessId is required');
+    }
   }
 }

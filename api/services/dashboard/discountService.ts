@@ -10,10 +10,16 @@ import logger from '../../config/logger';
 export const DEFAULT_LIMITED_BUSINESS_USAGE_CAP = 12;
 
 export class DiscountService {
-  // The business is authenticated (it scans the member's QR), so businessId
-  // comes from the JWT and the member's userId comes from the scanned code.
+  // The business is authenticated (its id comes from the JWT). The scanned QR
+  // carries both the member's userId and the businessId it was issued for; the
+  // QR's businessId must match the authenticated business, otherwise the QR
+  // belongs to a different business and the scan is rejected.
   async createDiscount(businessId: string, data: RecordDiscountInput): Promise<DiscountResponse> {
     DiscountValidation.validateRecordDiscount(data);
+
+    if (data.businessId !== businessId) {
+      throw new ForbiddenError('Invalid QR code: this code is not registered to your business');
+    }
 
     const user = await User.findById(data.userId);
     if (!user) {
