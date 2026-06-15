@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { User, CreateUserInput, UpdateUserInput, UserResponse } from '../../models/User';
 import { UserValidation } from '../../validations/userValidation';
-import { ConflictError, NotFoundError } from '../../helpers/errors';
+import { ConflictError, NotFoundError, ValidationError } from '../../helpers/errors';
 import logger from '../../config/logger';
 
 export class UserService {
@@ -67,7 +67,12 @@ export class UserService {
   async updateUser(id: string, data: UpdateUserInput): Promise<UserResponse> {
     UserValidation.validateUpdateUser(data);
 
-    const user = await User.findByIdAndUpdate(id, data, { new: true });
+    const update: Partial<Record<keyof UpdateUserInput, unknown>> = { ...data };
+    if (data.password !== undefined) {
+      update.password = await bcrypt.hash(data.password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(id, update, { new: true });
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -76,14 +81,29 @@ export class UserService {
     return this.mapToResponse(user);
   }
 
-  async renewUser(id: string): Promise<UserResponse> {
+  async renewUser(id: string, expiryDate?: string): Promise<UserResponse> {
     const user = await User.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
 
-    const expiryDate = new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000);
-    user.expiryDate = expiryDate;
+    // Renewal restarts the subscription period from today.
+    const newStart = new Date();
+
+    let newExpiry: Date;
+    if (expiryDate) {
+      newExpiry = new Date(expiryDate);
+      if (isNaN(newExpiry.getTime())) {
+        throw new ValidationError('Invalid expiry date');
+      }
+    } else {
+      // Default: one year from the new start date.
+      newExpiry = new Date(newStart);
+      newExpiry.setFullYear(newExpiry.getFullYear() + 1);
+    }
+
+    user.startDate = newStart;
+    user.expiryDate = newExpiry;
     await user.save();
 
     logger.info(`User subscription renewed: ${user.email}`);

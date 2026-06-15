@@ -82,6 +82,10 @@ export class BusinessValidation {
       throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
     }
 
+    if (data.password !== undefined && data.password.length < 8) {
+      throw new ValidationError('Password must be at least 8 characters long');
+    }
+
     if (data.ownerName !== undefined && data.ownerName.trim().length === 0) {
       throw new ValidationError('Owner name cannot be empty');
     }

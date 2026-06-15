@@ -134,6 +134,7 @@ export interface UpdateBusinessInput {
   name?: string;
   type?: BusinessType;
   phone?: string;
+  password?: string;
   ownerName?: string;
   city?: LebanesCity;
   address?: string;

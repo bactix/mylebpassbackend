@@ -77,6 +77,7 @@ export interface CreateUserInput {
 export interface UpdateUserInput {
   name?: string;
   phone?: string;
+  password?: string;
   status?: 'active' | 'inactive' | 'pending';
 }
 

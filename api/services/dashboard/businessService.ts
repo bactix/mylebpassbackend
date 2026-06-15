@@ -148,7 +148,12 @@ export class BusinessService {
   async updateBusiness(id: string, data: UpdateBusinessInput): Promise<BusinessResponse> {
     BusinessValidation.validateUpdateBusiness(data);
 
-    const business = await Business.findByIdAndUpdate(id, data, { new: true });
+    const update: Partial<Record<keyof UpdateBusinessInput, unknown>> = { ...data };
+    if (data.password !== undefined) {
+      update.password = await bcrypt.hash(data.password, 10);
+    }
+
+    const business = await Business.findByIdAndUpdate(id, update, { new: true });
     if (!business) {
       throw new NotFoundError('Business not found');
     }
