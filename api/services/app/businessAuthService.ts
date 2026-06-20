@@ -39,7 +39,7 @@ interface BusinessAuthResponse {
 interface RegisterResponse {
   business: {
     id: string;
-    email: string;
+    email?: string;
     name: string;
     ownerName: string;
     phone: string;
