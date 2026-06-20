@@ -93,7 +93,7 @@ export class UserAuthService {
     }
 
     if (!credentials.phone || !this.isValidLebanesPhone(credentials.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     if (!credentials.password || credentials.password.length < 8) {
@@ -111,7 +111,7 @@ export class UserAuthService {
   }
 
   private isValidLebanesPhone(phone: string): boolean {
-    const phoneRegex = /^\+961 \d{8}$/;
+    const phoneRegex = /^(\d{1} \d{3} \d{4}|\d{8})$/;
     return phoneRegex.test(phone);
   }
 

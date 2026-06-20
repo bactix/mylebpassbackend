@@ -26,9 +26,9 @@ export class BusinessService {
   async createBusiness(data: CreateBusinessInput): Promise<BusinessResponse> {
     BusinessValidation.validateCreateBusiness(data);
 
-    const existingBusiness = await Business.findOne({ email: data.email.toLowerCase() });
+    const existingBusiness = await Business.findOne({ phone: data.phone });
     if (existingBusiness) {
-      throw new ConflictError('Email already exists');
+      throw new ConflictError('Phone number already exists');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -36,12 +36,13 @@ export class BusinessService {
     const business = new Business({
       name: data.name,
       type: data.type,
-      email: data.email.toLowerCase(),
+      email: data.email ? data.email.toLowerCase() : undefined,
       phone: data.phone,
       ownerName: data.ownerName,
       city: data.city,
       address: data.address,
       about: data.about,
+      discount: data.discount,
       password: hashedPassword,
       accountType: 'business',
       businessModel: data.businessModel,
@@ -49,7 +50,7 @@ export class BusinessService {
     });
 
     await business.save();
-    logger.info(`Business created: ${business.email}`);
+    logger.info(`Business created: ${business.phone}`);
     return this.mapToResponse(business);
   }
 
@@ -158,7 +159,7 @@ export class BusinessService {
       throw new NotFoundError('Business not found');
     }
 
-    logger.info(`Business updated: ${business.email}`);
+    logger.info(`Business updated: ${business.phone}`);
     return this.mapToResponse(business);
   }
 
@@ -168,7 +169,7 @@ export class BusinessService {
       throw new NotFoundError('Business not found');
     }
 
-    logger.info(`Business deleted: ${business.email}`);
+    logger.info(`Business deleted: ${business.phone}`);
     return this.mapToResponse(business);
   }
 
@@ -218,6 +219,7 @@ export class BusinessService {
       city: business.city,
       address: business.address,
       about: business.about,
+      discount: business.discount,
       businessModel: business.businessModel,
       usageLimit: business.usageLimit,
       profilePicture: toAbsoluteMediaUrl(business.profilePicture),

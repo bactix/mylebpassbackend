@@ -26,12 +26,12 @@ export class BusinessValidation {
       throw new ValidationError('Type must be one of: restaurant, hotel, other');
     }
 
-    if (!data.email || !this.isValidEmail(data.email)) {
+    if (data.email !== undefined && data.email !== null && data.email !== '' && !this.isValidEmail(data.email)) {
       throw new ValidationError('Invalid email format');
     }
 
     if (!data.phone || !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     if (!data.ownerName || data.ownerName.trim().length === 0) {
@@ -50,6 +50,10 @@ export class BusinessValidation {
 
     if (!data.about || data.about.trim().length === 0) {
       throw new ValidationError('About is required');
+    }
+
+    if (data.discount === undefined || !this.isValidDiscount(data.discount)) {
+      throw new ValidationError('Discount must be a number between 0 and 100');
     }
 
     if (!data.password || data.password.length < 8) {
@@ -79,7 +83,7 @@ export class BusinessValidation {
     }
 
     if (data.phone !== undefined && !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     if (data.password !== undefined && data.password.length < 8) {
@@ -104,9 +108,17 @@ export class BusinessValidation {
       throw new ValidationError('About cannot be empty');
     }
 
+    if (data.discount !== undefined && !this.isValidDiscount(data.discount)) {
+      throw new ValidationError('Discount must be a number between 0 and 100');
+    }
+
     if (data.usageLimit !== undefined && data.usageLimit < 1) {
       throw new ValidationError('Usage limit must be at least 1');
     }
+  }
+
+  private static isValidDiscount(discount: number): boolean {
+    return typeof discount === 'number' && !isNaN(discount) && discount >= 0 && discount <= 100;
   }
 
   private static isValidEmail(email: string): boolean {
@@ -115,7 +127,7 @@ export class BusinessValidation {
   }
 
   private static isValidLebanesPhone(phone: string): boolean {
-    const phoneRegex = /^\+961 \d{8}$/;
+    const phoneRegex = /^(\d{1} \d{3} \d{4}|\d{8})$/;
     return phoneRegex.test(phone);
   }
 }

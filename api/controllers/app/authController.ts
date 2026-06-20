@@ -19,7 +19,7 @@ interface RegisterRequest {
 interface BusinessRegisterRequest {
   name: string;
   type: 'restaurant' | 'hotel' | 'other';
-  email: string;
+  email?: string;
   phone: string;
   ownerName: string;
   city: string;
@@ -27,6 +27,11 @@ interface BusinessRegisterRequest {
   about: string;
   password: string;
   confirmPassword: string;
+}
+
+interface BusinessLoginRequest {
+  phone: string;
+  password: string;
 }
 
 export class AppAuthController {
@@ -83,12 +88,12 @@ export class AppAuthController {
 
   async businessLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { email, password } = req.body as LoginRequest;
-      if (!email || !password) {
-        res.status(400).json(ResponseHelper.error('Email and password are required'));
+      const { phone, password } = req.body as BusinessLoginRequest;
+      if (!phone || !password) {
+        res.status(400).json(ResponseHelper.error('Phone number and password are required'));
         return;
       }
-      const result = await businessAuthService.login({ email, password });
+      const result = await businessAuthService.login({ phone, password });
       res.status(200).json(ResponseHelper.success(result, 'Login successful'));
     } catch (error) {
       next(error);

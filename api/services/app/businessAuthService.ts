@@ -9,14 +9,14 @@ import logger from '../../config/logger';
 const SELF_REGISTER_USAGE_LIMIT = 12;
 
 interface LoginCredentials {
-  email: string;
+  phone: string;
   password: string;
 }
 
 interface RegisterCredentials {
   name: string;
   type: 'restaurant' | 'hotel' | 'other';
-  email: string;
+  email?: string;
   phone: string;
   ownerName: string;
   city: string;
@@ -30,7 +30,7 @@ interface BusinessAuthResponse {
   token: string;
   business: {
     id: string;
-    email: string;
+    phone: string;
     name: string;
     role: 'business';
   };
@@ -53,18 +53,19 @@ interface RegisterResponse {
 
 export class BusinessAuthService {
   async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
-    const email = credentials.email.toLowerCase();
-
     this.validateRegisterInput(credentials);
 
-    const existingBusiness = await Business.findOne({ email });
+    const existingBusiness = await Business.findOne({ phone: credentials.phone });
     if (existingBusiness) {
-      throw new ConflictError('Email already registered as a business');
+      throw new ConflictError('Phone number already registered as a business');
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      throw new ConflictError('This email is registered as a user account');
+    const email = credentials.email ? credentials.email.toLowerCase() : undefined;
+    if (email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        throw new ConflictError('This email is registered as a user account');
+      }
     }
 
     const hashedPassword = await bcrypt.hash(credentials.password, 10);
@@ -87,7 +88,7 @@ export class BusinessAuthService {
     });
 
     await business.save();
-    logger.info(`New business registered: ${email}`);
+    logger.info(`New business registered: ${credentials.phone}`);
 
     return {
       business: {
@@ -114,12 +115,12 @@ export class BusinessAuthService {
       throw new ValidationError('Owner name is required');
     }
 
-    if (!credentials.email || !this.isValidEmail(credentials.email)) {
+    if (credentials.email !== undefined && credentials.email !== null && credentials.email !== '' && !this.isValidEmail(credentials.email)) {
       throw new ValidationError('Invalid email format');
     }
 
     if (!credentials.phone || !this.isValidLebanesPhone(credentials.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     if (!credentials.type || !['restaurant', 'hotel', 'other'].includes(credentials.type)) {
@@ -153,44 +154,40 @@ export class BusinessAuthService {
   }
 
   private isValidLebanesPhone(phone: string): boolean {
-    const phoneRegex = /^\+961 \d{8}$/;
+    const phoneRegex = /^(\d{1} \d{3} \d{4}|\d{8})$/;
     return phoneRegex.test(phone);
   }
 
   async login(credentials: LoginCredentials): Promise<BusinessAuthResponse> {
-    const email = credentials.email.toLowerCase();
-
-    // Check if email exists in User collection
-    const user = await User.findOne({ email });
-    if (user) {
-      throw new UnauthorizedError('This account is registered as a regular user. Please use the user login endpoint.');
+    if (!credentials.phone || !this.isValidLebanesPhone(credentials.phone)) {
+      throw new UnauthorizedError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     const business = await Business.findOne({
-      email,
+      phone: credentials.phone,
       $or: [{ accountType: 'business' }, { accountType: { $exists: false } }]
     });
     if (!business) {
-      throw new UnauthorizedError('Invalid email or password');
+      throw new UnauthorizedError('Invalid phone number or password');
     }
 
     if (!business.password) {
-      throw new UnauthorizedError('Invalid email or password');
+      throw new UnauthorizedError('Invalid phone number or password');
     }
 
     const passwordMatch = await bcrypt.compare(credentials.password, business.password);
     if (!passwordMatch) {
-      throw new UnauthorizedError('Invalid email or password');
+      throw new UnauthorizedError('Invalid phone number or password');
     }
 
-    const token = generateToken(business._id.toString(), business.email, 'business');
-    logger.info(`Business logged in: ${business.email}`);
+    const token = generateToken(business._id.toString(), business.phone, 'business');
+    logger.info(`Business logged in: ${business.phone}`);
 
     return {
       token,
       business: {
         id: business._id.toString(),
-        email: business.email,
+        phone: business.phone,
         name: business.name,
         role: 'business',
       },

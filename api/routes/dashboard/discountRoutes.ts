@@ -7,6 +7,9 @@ const router = Router();
 router.get('/', authenticate, requireRole('admin'), (req, res, next) =>
   discountController.getAllDiscounts(req, res, next)
 );
+router.get('/user/:userId', authenticate, requireRole('admin'), (req, res, next) =>
+  discountController.getUserDiscounts(req, res, next)
+);
 router.get('/:id', authenticate, requireRole('admin'), (req, res, next) =>
   discountController.getDiscount(req, res, next)
 );

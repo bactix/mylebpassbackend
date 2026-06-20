@@ -13,6 +13,19 @@ export class DiscountController {
     }
   }
 
+  async getUserDiscounts(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { userId } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const result = await discountService.getUserDiscounts(userId, page, limit);
+      res.status(200).json(ResponseHelper.success(result));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getAllDiscounts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;

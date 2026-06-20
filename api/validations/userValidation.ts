@@ -12,7 +12,7 @@ export class UserValidation {
     }
 
     if (!data.phone || !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     if (!data.password || data.password.length < 8) {
@@ -29,8 +29,12 @@ export class UserValidation {
       throw new ValidationError('Name cannot be empty');
     }
 
+    if (data.email !== undefined && !this.isValidEmail(data.email)) {
+      throw new ValidationError('Invalid email format');
+    }
+
     if (data.phone !== undefined && !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid Lebanese phone number. Format: +961 XXXXXXXX');
+      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
     if (data.password !== undefined && data.password.length < 8) {
@@ -40,6 +44,10 @@ export class UserValidation {
     if (data.status !== undefined && !['active', 'inactive'].includes(data.status)) {
       throw new ValidationError('Status must be either "active" or "inactive"');
     }
+
+    if (data.startDate !== undefined && isNaN(new Date(data.startDate).getTime())) {
+      throw new ValidationError('Invalid start date');
+    }
   }
 
   private static isValidEmail(email: string): boolean {
@@ -48,7 +56,7 @@ export class UserValidation {
   }
 
   private static isValidLebanesPhone(phone: string): boolean {
-    const phoneRegex = /^\+961 \d{8}$/;
+    const phoneRegex = /^(\d{1} \d{3} \d{4}|\d{8})$/;
     return phoneRegex.test(phone);
   }
 }

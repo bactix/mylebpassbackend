@@ -20,13 +20,14 @@ export interface IBusiness extends Document {
   name: string;
   type: BusinessType;
   accountType: 'business';
-  email: string;
+  email?: string;
   password: string;
   phone: string;
   ownerName: string;
   city: LebanesCity;
   address: string;
   about: string;
+  discount: number;
   status: 'active' | 'inactive' | 'pending';
   businessModel: BusinessModel;
   usageLimit?: number;
@@ -57,8 +58,6 @@ const businessSchema = new Schema<IBusiness>(
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
       lowercase: true,
       index: true,
     },
@@ -69,6 +68,8 @@ const businessSchema = new Schema<IBusiness>(
     phone: {
       type: String,
       required: true,
+      unique: true,
+      index: true,
     },
     ownerName: {
       type: String,
@@ -86,6 +87,13 @@ const businessSchema = new Schema<IBusiness>(
     about: {
       type: String,
       required: true,
+    },
+    discount: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 100,
+      default: 0,
     },
     status: {
       type: String,
@@ -119,12 +127,13 @@ export const Business = model<IBusiness>('Business', businessSchema);
 export interface CreateBusinessInput {
   name: string;
   type: BusinessType;
-  email: string;
+  email?: string;
   phone: string;
   ownerName: string;
   city: LebanesCity;
   address: string;
   about: string;
+  discount: number;
   password: string;
   businessModel: BusinessModel;
   usageLimit?: number;
@@ -139,6 +148,7 @@ export interface UpdateBusinessInput {
   city?: LebanesCity;
   address?: string;
   about?: string;
+  discount?: number;
   usageLimit?: number;
 }
 
@@ -146,7 +156,7 @@ export interface BusinessResponse {
   id: string;
   name: string;
   type: BusinessType;
-  email: string;
+  email?: string;
   phone: string;
   ownerName: string;
   city: LebanesCity;
@@ -154,6 +164,7 @@ export interface BusinessResponse {
   usageLimit?: number;
   address: string;
   about: string;
+  discount: number;
   profilePicture?: string;
   gallery?: string[];
   couponsCount?: number;

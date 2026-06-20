@@ -76,9 +76,11 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
   name?: string;
+  email?: string;
   phone?: string;
   password?: string;
   status?: 'active' | 'inactive' | 'pending';
+  startDate?: string | Date;
 }
 
 export interface UserResponse {
