@@ -15,7 +15,7 @@ interface LoginCredentials {
 
 interface RegisterCredentials {
   name: string;
-  type: 'restaurant' | 'hotel' | 'other';
+  type: 'restaurant' | 'hotel' | 'spa' | 'coffee shop' | 'activity' | 'other';
   email?: string;
   phone: string;
   ownerName: string;
@@ -123,7 +123,7 @@ export class BusinessAuthService {
       throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
     }
 
-    if (!credentials.type || !['restaurant', 'hotel', 'other'].includes(credentials.type)) {
+    if (!credentials.type || !['restaurant', 'hotel', 'spa', 'coffee shop', 'activity', 'other'].includes(credentials.type)) {
       throw new ValidationError('Invalid business type');
     }
 

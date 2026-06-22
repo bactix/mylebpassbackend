@@ -21,7 +21,8 @@ export class CouponService {
       discount: data.discount,
       description: data.description,
       expiryDate: new Date(data.expiryDate),
-      maxUsagePerUser: data.maxUsagePerUser,
+      ...(data.maxUsesTotal !== undefined && { maxUsesTotal: data.maxUsesTotal }),
+      ...(data.maxUsers !== undefined && { maxUsers: data.maxUsers }),
       totalUsageCount: 0,
       isActive: true,
     });
@@ -81,7 +82,8 @@ export class CouponService {
     const updateData: any = {};
     if (data.description !== undefined) updateData.description = data.description;
     if (data.expiryDate !== undefined) updateData.expiryDate = new Date(data.expiryDate);
-    if (data.maxUsagePerUser !== undefined) updateData.maxUsagePerUser = data.maxUsagePerUser;
+    if (data.maxUsesTotal !== undefined) updateData.maxUsesTotal = data.maxUsesTotal;
+    if (data.maxUsers !== undefined) updateData.maxUsers = data.maxUsers;
 
     const updated = await Coupon.findByIdAndUpdate(id, updateData, { new: true });
     if (!updated) {
@@ -98,9 +100,8 @@ export class CouponService {
       throw new NotFoundError('Coupon not found');
     }
 
-    coupon.isActive = false;
-    await coupon.save();
-    logger.info(`Coupon deleted (soft): ${coupon.code}`);
+    await coupon.deleteOne();
+    logger.info(`Coupon deleted: ${coupon.code}`);
   }
 
   async useCoupon(couponId: string, userId: string): Promise<CouponUsageResponse> {
@@ -127,14 +128,21 @@ export class CouponService {
       throw new ValidationError('Coupon has expired');
     }
 
-    // Check usage count
-    const userUsageCount = await CouponUsage.countDocuments({
-      couponId: new Types.ObjectId(couponId),
-      userId: new Types.ObjectId(userId),
-    });
+    if (coupon.maxUsesTotal !== undefined && coupon.totalUsageCount >= coupon.maxUsesTotal) {
+      throw new ValidationError('Coupon has reached its total usage limit');
+    }
 
-    if (userUsageCount >= coupon.maxUsagePerUser) {
-      throw new ValidationError('Coupon usage limit exceeded for this user');
+    if (coupon.maxUsers !== undefined) {
+      const uniqueUsersCount = await CouponUsage.distinct('userId', {
+        couponId: new Types.ObjectId(couponId),
+      }).then(ids => ids.length);
+      const alreadyUsedByCaller = await CouponUsage.exists({
+        couponId: new Types.ObjectId(couponId),
+        userId: new Types.ObjectId(userId),
+      });
+      if (!alreadyUsedByCaller && uniqueUsersCount >= coupon.maxUsers) {
+        throw new ValidationError('Coupon has reached the maximum number of allowed users');
+      }
     }
 
     // Create usage record
@@ -195,7 +203,7 @@ export class CouponService {
       couponId,
       code: coupon.code,
       totalUsageCount: coupon.totalUsageCount,
-      maxUsagePerUser: coupon.maxUsagePerUser,
+      ...(coupon.maxUsesTotal !== undefined && { maxUsesTotal: coupon.maxUsesTotal }),
       uniqueUsersCount: Object.keys(usageByUser).length,
       usageHistory: Object.values(usageByUser),
     };
@@ -209,7 +217,8 @@ export class CouponService {
       discount: coupon.discount,
       description: coupon.description,
       expiryDate: coupon.expiryDate.toISOString(),
-      maxUsagePerUser: coupon.maxUsagePerUser,
+      ...(coupon.maxUsesTotal !== undefined && { maxUsesTotal: coupon.maxUsesTotal }),
+      ...(coupon.maxUsers !== undefined && { maxUsers: coupon.maxUsers }),
       totalUsageCount: coupon.totalUsageCount,
       createdAt: coupon.createdAt.toISOString(),
       updatedAt: coupon.updatedAt.toISOString(),

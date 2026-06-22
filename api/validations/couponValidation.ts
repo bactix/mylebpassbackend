@@ -28,8 +28,16 @@ export class CouponValidation {
       throw new ValidationError('Expiry date must be in the future');
     }
 
-    if (!Number.isInteger(data.maxUsagePerUser) || data.maxUsagePerUser < 1) {
-      throw new ValidationError('Max usage per user must be at least 1');
+    if (data.maxUsesTotal !== undefined) {
+      if (!Number.isInteger(data.maxUsesTotal) || data.maxUsesTotal < 1) {
+        throw new ValidationError('Max uses total must be at least 1');
+      }
+    }
+
+    if (data.maxUsers !== undefined) {
+      if (!Number.isInteger(data.maxUsers) || data.maxUsers < 1) {
+        throw new ValidationError('Max users must be at least 1');
+      }
     }
   }
 
@@ -49,9 +57,15 @@ export class CouponValidation {
       }
     }
 
-    if (data.maxUsagePerUser !== undefined) {
-      if (!Number.isInteger(data.maxUsagePerUser) || data.maxUsagePerUser < 1) {
-        throw new ValidationError('Max usage per user must be at least 1');
+    if (data.maxUsesTotal !== undefined) {
+      if (!Number.isInteger(data.maxUsesTotal) || data.maxUsesTotal < 1) {
+        throw new ValidationError('Max uses total must be at least 1');
+      }
+    }
+
+    if (data.maxUsers !== undefined) {
+      if (!Number.isInteger(data.maxUsers) || data.maxUsers < 1) {
+        throw new ValidationError('Max users must be at least 1');
       }
     }
   }

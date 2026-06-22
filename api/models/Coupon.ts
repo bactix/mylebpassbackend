@@ -6,7 +6,8 @@ export interface ICoupon extends Document {
   discount: number;
   description: string;
   expiryDate: Date;
-  maxUsagePerUser: number;
+  maxUsesTotal?: number;
+  maxUsers?: number;
   totalUsageCount: number;
   isActive: boolean;
   createdAt: Date;
@@ -43,9 +44,12 @@ const couponSchema = new Schema<ICoupon>(
       required: true,
       index: true,
     },
-    maxUsagePerUser: {
+    maxUsesTotal: {
       type: Number,
-      required: true,
+      min: 1,
+    },
+    maxUsers: {
+      type: Number,
       min: 1,
     },
     totalUsageCount: {
@@ -70,13 +74,15 @@ export interface CreateCouponInput {
   discount: number;
   description: string;
   expiryDate: string;
-  maxUsagePerUser: number;
+  maxUsesTotal?: number;
+  maxUsers?: number;
 }
 
 export interface UpdateCouponInput {
   description?: string;
   expiryDate?: string;
-  maxUsagePerUser?: number;
+  maxUsesTotal?: number;
+  maxUsers?: number;
 }
 
 export interface CouponResponse {
@@ -86,7 +92,8 @@ export interface CouponResponse {
   discount: number;
   description: string;
   expiryDate: string;
-  maxUsagePerUser: number;
+  maxUsesTotal?: number;
+  maxUsers?: number;
   totalUsageCount: number;
   createdAt: string;
   updatedAt: string;

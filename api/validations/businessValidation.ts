@@ -22,8 +22,8 @@ export class BusinessValidation {
       throw new ValidationError('Business name is required');
     }
 
-    if (!data.type || !['restaurant', 'hotel', 'other'].includes(data.type)) {
-      throw new ValidationError('Type must be one of: restaurant, hotel, other');
+    if (!data.type || !['restaurant', 'hotel', 'spa', 'coffee shop', 'activity', 'other'].includes(data.type)) {
+      throw new ValidationError('Type must be one of: restaurant, hotel, spa, coffee shop, activity, other');
     }
 
     if (data.email !== undefined && data.email !== null && data.email !== '' && !this.isValidEmail(data.email)) {
@@ -31,7 +31,7 @@ export class BusinessValidation {
     }
 
     if (!data.phone || !this.isValidLebanesPhone(data.phone)) {
-      throw new ValidationError('Invalid phone number. Format: 3 000 000 or 3000000');
+      throw new ValidationError('Invalid phone number. Must be 8 digits starting with 03, 70, 71, 72, 73, 76, 78, 79, or 81');
     }
 
     if (!data.ownerName || data.ownerName.trim().length === 0) {
@@ -78,8 +78,8 @@ export class BusinessValidation {
       throw new ValidationError('Business name cannot be empty');
     }
 
-    if (data.type !== undefined && !['restaurant', 'hotel', 'other'].includes(data.type)) {
-      throw new ValidationError('Type must be one of: restaurant, hotel, other');
+    if (data.type !== undefined && !['restaurant', 'hotel', 'spa', 'coffee shop', 'activity', 'other'].includes(data.type)) {
+      throw new ValidationError('Type must be one of: restaurant, hotel, spa, coffee shop, activity, other');
     }
 
     if (data.phone !== undefined && !this.isValidLebanesPhone(data.phone)) {
@@ -127,7 +127,7 @@ export class BusinessValidation {
   }
 
   private static isValidLebanesPhone(phone: string): boolean {
-    const phoneRegex = /^(\d{1} \d{3} \d{4}|\d{8})$/;
+    const phoneRegex = /^(03|70|71|72|73|76|78|79|81)\d{6}$/;
     return phoneRegex.test(phone);
   }
 }

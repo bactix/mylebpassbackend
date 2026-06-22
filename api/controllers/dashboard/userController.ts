@@ -64,8 +64,8 @@ export class UserController {
   async renewUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const { expiryDate } = (req.body ?? {}) as { expiryDate?: string };
-      const user = await userService.renewUser(id, expiryDate);
+      const { startDate, expiryDate } = (req.body ?? {}) as { startDate?: string; expiryDate?: string };
+      const user = await userService.renewUser(id, expiryDate, startDate);
       res.status(200).json(ResponseHelper.success(user, 'User subscription renewed successfully'));
     } catch (error) {
       next(error);

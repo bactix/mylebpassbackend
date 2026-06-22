@@ -81,14 +81,23 @@ export class UserService {
     return this.mapToResponse(user);
   }
 
-  async renewUser(id: string, expiryDate?: string): Promise<UserResponse> {
+  async renewUser(id: string, expiryDate?: string, startDate?: string): Promise<UserResponse> {
     const user = await User.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
 
-    // Renewal restarts the subscription period from today.
-    const newStart = new Date();
+    // Renewal restarts the subscription period from the given start date
+    // (defaults to today).
+    let newStart: Date;
+    if (startDate) {
+      newStart = new Date(startDate);
+      if (isNaN(newStart.getTime())) {
+        throw new ValidationError('Invalid start date');
+      }
+    } else {
+      newStart = new Date();
+    }
 
     let newExpiry: Date;
     if (expiryDate) {
