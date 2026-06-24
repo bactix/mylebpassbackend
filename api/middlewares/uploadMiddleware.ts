@@ -15,7 +15,7 @@ function ensureDir(dirPath: string): void {
 
 const storage = multer.diskStorage({
   destination: (req: Request, _file, cb) => {
-    const businessId = req.user?.id ?? 'unknown';
+    const businessId = (req.params as any).id ?? req.user?.id ?? 'unknown';
     const uploadDir = path.join(process.cwd(), 'uploads', 'businesses', businessId);
     ensureDir(uploadDir);
     cb(null, uploadDir);

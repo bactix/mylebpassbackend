@@ -80,6 +80,106 @@ export class BusinessMeController {
     }
   }
 
+  async updateProfilePicture(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const file = req.file;
+      if (!file) {
+        res.status(400).json(ResponseHelper.error('No image file provided'));
+        return;
+      }
+
+      const business = await Business.findById(req.user!.id);
+      if (!business) {
+        res.status(404).json(ResponseHelper.error('Business not found'));
+        return;
+      }
+
+      if (business.profilePicture) {
+        const oldPath = path.join(process.cwd(), business.profilePicture);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      const relativePath = path
+        .join('uploads', 'businesses', req.user!.id, file.filename)
+        .replace(/\\/g, '/');
+
+      const updated = await businessService.updateProfilePicture(req.user!.id, relativePath);
+      res.status(200).json(ResponseHelper.success(updated, 'Profile picture updated successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updatePhotos(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const files = req.files as Express.Multer.File[] | undefined;
+      if (!files || files.length === 0) {
+        res.status(400).json(ResponseHelper.error('No image files provided'));
+        return;
+      }
+
+      const business = await Business.findById(req.user!.id);
+      if (!business) {
+        res.status(404).json(ResponseHelper.error('Business not found'));
+        return;
+      }
+
+      const currentCount = business.gallery?.length ?? 0;
+      const availableSlots = 3 - currentCount;
+
+      if (availableSlots === 0) {
+        res.status(400).json(ResponseHelper.error('Gallery is full (3/3). Delete a photo first.'));
+        return;
+      }
+
+      if (files.length > availableSlots) {
+        res.status(400).json(
+          ResponseHelper.error(`Only ${availableSlots} slot(s) available in the gallery.`)
+        );
+        return;
+      }
+
+      const relativePaths = files.map(f =>
+        path.join('uploads', 'businesses', req.user!.id, f.filename).replace(/\\/g, '/')
+      );
+
+      const updated = await businessService.addGalleryImages(req.user!.id, relativePaths);
+      res.status(200).json(ResponseHelper.success(updated, 'Photos added successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deletePhoto(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const index = parseInt(req.params.index, 10);
+      if (isNaN(index) || index < 0) {
+        res.status(400).json(ResponseHelper.error('Invalid photo index'));
+        return;
+      }
+
+      const business = await Business.findById(req.user!.id);
+      if (!business) {
+        res.status(404).json(ResponseHelper.error('Business not found'));
+        return;
+      }
+
+      const gallery = business.gallery ?? [];
+      if (index >= gallery.length) {
+        res.status(404).json(ResponseHelper.error('Photo not found'));
+        return;
+      }
+
+      const photoPath = path.join(process.cwd(), gallery[index]);
+      if (fs.existsSync(photoPath)) fs.unlinkSync(photoPath);
+
+      const updated = await businessService.removeGalleryImage(req.user!.id, index);
+      res.status(200).json(ResponseHelper.success(updated, 'Photo deleted successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async deleteAccount(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       await businessService.deleteBusiness(req.user!.id);

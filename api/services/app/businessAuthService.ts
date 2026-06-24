@@ -180,6 +180,10 @@ export class BusinessAuthService {
       throw new UnauthorizedError('Invalid phone number or password');
     }
 
+    if (business.status !== 'active') {
+      throw new UnauthorizedError('Your account is not active. Please contact support.');
+    }
+
     const token = generateToken(business._id.toString(), business.phone, 'business');
     logger.info(`Business logged in: ${business.phone}`);
 

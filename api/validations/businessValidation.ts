@@ -52,7 +52,7 @@ export class BusinessValidation {
       throw new ValidationError('About is required');
     }
 
-    if (data.discount === undefined || !this.isValidDiscount(data.discount)) {
+    if (data.discount !== undefined && !this.isValidDiscount(data.discount)) {
       throw new ValidationError('Discount must be a number between 0 and 100');
     }
 
@@ -60,7 +60,7 @@ export class BusinessValidation {
       throw new ValidationError('Password must be at least 8 characters long');
     }
 
-    if (!data.businessModel || !['unlimited', 'limited'].includes(data.businessModel)) {
+    if (data.businessModel !== undefined && !['unlimited', 'limited'].includes(data.businessModel)) {
       throw new ValidationError('Business model must be either "unlimited" or "limited"');
     }
 
@@ -68,7 +68,7 @@ export class BusinessValidation {
       if (!data.usageLimit || data.usageLimit < 1) {
         throw new ValidationError('Usage limit must be at least 1 for limited model');
       }
-    } else if (data.usageLimit !== undefined) {
+    } else if (data.businessModel === 'unlimited' && data.usageLimit !== undefined) {
       throw new ValidationError('Usage limit should not be set for unlimited model');
     }
   }
@@ -114,6 +114,10 @@ export class BusinessValidation {
 
     if (data.usageLimit !== undefined && data.usageLimit < 1) {
       throw new ValidationError('Usage limit must be at least 1');
+    }
+
+    if (data.status !== undefined && !['active', 'inactive'].includes(data.status)) {
+      throw new ValidationError('Status must be either "active" or "inactive"');
     }
   }
 

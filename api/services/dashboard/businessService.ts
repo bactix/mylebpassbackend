@@ -42,10 +42,10 @@ export class BusinessService {
       city: data.city,
       address: data.address,
       about: data.about,
-      discount: data.discount,
+      discount: data.discount ?? 0,
       password: hashedPassword,
       accountType: 'business',
-      businessModel: data.businessModel,
+      businessModel: data.businessModel ?? 'unlimited',
       usageLimit: data.businessModel === 'limited' ? data.usageLimit : undefined,
     });
 
@@ -179,6 +179,44 @@ export class BusinessService {
     return { deletedCount: result.deletedCount ?? 0 };
   }
 
+  async updateProfilePicture(id: string, filePath: string): Promise<BusinessResponse> {
+    const business = await Business.findByIdAndUpdate(id, { profilePicture: filePath }, { new: true });
+    if (!business) throw new NotFoundError('Business not found');
+    return this.mapToResponse(business);
+  }
+
+  async addGalleryImages(id: string, filePaths: string[]): Promise<BusinessResponse> {
+    const business = await Business.findById(id);
+    if (!business) throw new NotFoundError('Business not found');
+
+    const combined = [...(business.gallery ?? []), ...filePaths].slice(0, 3);
+    business.gallery = combined;
+    await business.save();
+    return this.mapToResponse(business);
+  }
+
+  async replaceGallery(id: string, filePaths: string[]): Promise<BusinessResponse> {
+    const business = await Business.findByIdAndUpdate(
+      id,
+      { gallery: filePaths.slice(0, 3) },
+      { new: true }
+    );
+    if (!business) throw new NotFoundError('Business not found');
+    return this.mapToResponse(business);
+  }
+
+  async removeGalleryImage(id: string, index: number): Promise<BusinessResponse> {
+    const business = await Business.findById(id);
+    if (!business) throw new NotFoundError('Business not found');
+
+    if (index < 0 || index >= (business.gallery?.length ?? 0)) {
+      throw new NotFoundError('Gallery image not found');
+    }
+    business.gallery = (business.gallery ?? []).filter((_, i) => i !== index);
+    await business.save();
+    return this.mapToResponse(business);
+  }
+
   async getUsageRemaining(id: string): Promise<any> {
     const business = await Business.findById(id);
     if (!business) {
@@ -220,9 +258,10 @@ export class BusinessService {
       address: business.address,
       about: business.about,
       discount: business.discount,
+      status: business.status,
       businessModel: business.businessModel,
       usageLimit: business.usageLimit,
-      profilePicture: toAbsoluteMediaUrl(business.profilePicture),
+      profilePicture: toAbsoluteMediaUrl(business.profilePicture) ?? null,
       gallery: toAbsoluteMediaUrls(business.gallery),
       couponsCount,
       totalUsageCount,

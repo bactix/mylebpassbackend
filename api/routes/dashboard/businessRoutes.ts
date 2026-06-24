@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { businessController } from '../../controllers/dashboard/businessController';
 import { authenticate, requireRole } from '../../middlewares/authMiddleware';
+import { uploadProfilePicture, uploadGallery } from '../../middlewares/uploadMiddleware';
 
 const router = Router();
 
@@ -12,6 +13,15 @@ router.get('/search', (req, res, next) => businessController.searchByCategory(re
 router.get('/:id', (req, res, next) => businessController.getBusiness(req, res, next));
 router.put('/:id', authenticate, requireRole('admin'), (req, res, next) =>
   businessController.updateBusiness(req, res, next)
+);
+router.post('/:id/profile-picture', authenticate, requireRole('admin'), uploadProfilePicture, (req, res, next) =>
+  businessController.uploadProfilePicture(req, res, next)
+);
+router.post('/:id/gallery', authenticate, requireRole('admin'), uploadGallery, (req, res, next) =>
+  businessController.uploadGallery(req, res, next)
+);
+router.delete('/:id/gallery/:index', authenticate, requireRole('admin'), (req, res, next) =>
+  businessController.removeGalleryImage(req, res, next)
 );
 router.get('/:id/usage-remaining', authenticate, requireRole('admin'), (req, res, next) =>
   businessController.getUsageRemaining(req, res, next)

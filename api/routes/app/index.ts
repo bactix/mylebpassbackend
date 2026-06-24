@@ -10,6 +10,7 @@ import meRoutes from './meRoutes';
 import businessMeRoutes from './businessMeRoutes';
 import businessRoutes from './businessRoutes';
 import discountRoutes from './discountRoutes';
+import businessStatsRoutes from './businessStatsRoutes';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/me', meRoutes);
 router.use('/business/me', businessMeRoutes);
+router.use('/business/stats', businessStatsRoutes);
 router.use('/businesses', businessRoutes);
 router.use('/discounts', discountRoutes);
 

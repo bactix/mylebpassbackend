@@ -133,9 +133,9 @@ export interface CreateBusinessInput {
   city: LebanesCity;
   address: string;
   about: string;
-  discount: number;
+  discount?: number;
   password: string;
-  businessModel: BusinessModel;
+  businessModel?: BusinessModel;
   usageLimit?: number;
 }
 
@@ -150,6 +150,7 @@ export interface UpdateBusinessInput {
   about?: string;
   discount?: number;
   usageLimit?: number;
+  status?: 'active' | 'inactive';
 }
 
 export interface BusinessResponse {
@@ -165,7 +166,8 @@ export interface BusinessResponse {
   address: string;
   about: string;
   discount: number;
-  profilePicture?: string;
+  status: 'active' | 'inactive' | 'pending';
+  profilePicture: string | null;
   gallery?: string[];
   couponsCount?: number;
   totalUsageCount?: number;
