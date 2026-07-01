@@ -1,6 +1,6 @@
 import { Schema, model, Document } from 'mongoose';
 
-export type BusinessType = 'restaurant' | 'hotel' | 'spa' | 'coffee shop' | 'activity' | 'other';
+export type BusinessType = 'restaurant' | 'hotel' | 'spa' | 'coffee shop' | 'activities' | 'other';
 export type BusinessModel = 'unlimited' | 'limited';
 export type LebanesCity =
   | 'Beirut'
@@ -45,7 +45,7 @@ const businessSchema = new Schema<IBusiness>(
     },
     type: {
       type: String,
-      enum: ['restaurant', 'hotel', 'spa', 'coffee shop', 'activity', 'other'],
+      enum: ['restaurant', 'hotel', 'spa', 'coffee shop', 'activities', 'other'],
       required: true,
       index: true,
     },

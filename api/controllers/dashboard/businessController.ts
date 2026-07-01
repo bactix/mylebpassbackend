@@ -67,6 +67,19 @@ export class BusinessController {
   async deleteBusiness(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
+
+      const existing = await Business.findById(id);
+      if (existing) {
+        if (existing.profilePicture) {
+          const p = path.join(process.cwd(), existing.profilePicture);
+          if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
+        for (const photo of existing.gallery ?? []) {
+          const p = path.join(process.cwd(), photo);
+          if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
+      }
+
       const business = await businessService.deleteBusiness(id);
       res.status(200).json(ResponseHelper.success(business, 'Business deleted successfully'));
     } catch (error) {
@@ -82,7 +95,21 @@ export class BusinessController {
           .json(ResponseHelper.error('This permanently deletes ALL businesses. Pass ?confirm=true to proceed.'));
         return;
       }
+
+      const businesses = await Business.find({}, { profilePicture: 1, gallery: 1 });
       const result = await businessService.deleteAllBusinesses();
+
+      for (const b of businesses) {
+        if (b.profilePicture) {
+          const p = path.join(process.cwd(), b.profilePicture);
+          if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
+        for (const photo of b.gallery ?? []) {
+          const p = path.join(process.cwd(), photo);
+          if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
+      }
+
       res.status(200).json(ResponseHelper.success(result, `Deleted ${result.deletedCount} business(es)`));
     } catch (error) {
       next(error);

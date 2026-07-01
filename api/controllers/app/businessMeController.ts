@@ -182,6 +182,17 @@ export class BusinessMeController {
 
   async deleteAccount(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const business = await Business.findById(req.user!.id);
+      if (business) {
+        if (business.profilePicture) {
+          const p = path.join(process.cwd(), business.profilePicture);
+          if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
+        for (const photo of business.gallery ?? []) {
+          const p = path.join(process.cwd(), photo);
+          if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
+      }
       await businessService.deleteBusiness(req.user!.id);
       res.status(200).json(ResponseHelper.success(null, 'Account deleted successfully'));
     } catch (error) {
