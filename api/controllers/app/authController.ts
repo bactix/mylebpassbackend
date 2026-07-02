@@ -18,7 +18,7 @@ interface RegisterRequest {
 
 interface BusinessRegisterRequest {
   name: string;
-  type: 'restaurant' | 'hotel' | 'spa' | 'coffee shop' | 'activities' | 'other';
+  type: 'restaurant' | 'hotel' | 'spa' | 'coffee shop' | 'activities' | 'gym' | 'online store' | 'other';
   email?: string;
   phone: string;
   ownerName: string;

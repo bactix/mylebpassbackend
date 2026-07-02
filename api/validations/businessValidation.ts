@@ -22,8 +22,8 @@ export class BusinessValidation {
       throw new ValidationError('Business name is required');
     }
 
-    if (!data.type || !['restaurant', 'hotel', 'spa', 'coffee shop', 'activities', 'other'].includes(data.type)) {
-      throw new ValidationError('Type must be one of: restaurant, hotel, spa, coffee shop, activities, other');
+    if (!data.type || !['restaurant', 'hotel', 'spa', 'coffee shop', 'activities', 'gym', 'online store', 'other'].includes(data.type)) {
+      throw new ValidationError('Type must be one of: restaurant, hotel, spa, coffee shop, activities, gym, online store, other');
     }
 
     if (data.email !== undefined && data.email !== null && data.email !== '' && !this.isValidEmail(data.email)) {
@@ -78,8 +78,8 @@ export class BusinessValidation {
       throw new ValidationError('Business name cannot be empty');
     }
 
-    if (data.type !== undefined && !['restaurant', 'hotel', 'spa', 'coffee shop', 'activities', 'other'].includes(data.type)) {
-      throw new ValidationError('Type must be one of: restaurant, hotel, spa, coffee shop, activities, other');
+    if (data.type !== undefined && !['restaurant', 'hotel', 'spa', 'coffee shop', 'activities', 'gym', 'online store', 'other'].includes(data.type)) {
+      throw new ValidationError('Type must be one of: restaurant, hotel, spa, coffee shop, activities, gym, online store, other');
     }
 
     if (data.phone !== undefined && !this.isValidLebanesPhone(data.phone)) {
