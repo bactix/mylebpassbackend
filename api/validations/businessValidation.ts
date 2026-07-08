@@ -14,6 +14,8 @@ const LEBANESE_CITIES: LebanesCity[] = [
   'Aley',
   'Chouf',
   'Bint Jbeil',
+  'Koura',
+  'Batroun',
 ];
 
 export class BusinessValidation {
